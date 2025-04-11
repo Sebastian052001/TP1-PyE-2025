@@ -1,0 +1,120 @@
+---
+title: "Informe Tecnico"
+output:
+  html_document: default
+  pdf_document: default
+date: "2025-04-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+*Instalacion de librerias para informe preliminar
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
+install.packages("readxl")
+install.packages('tidyr')
+install.packages("dplyr")
+```
+
+*Carga de librerias
+```{r include=FALSE}
+library(readxl)
+library(tidyr)
+library(dplyr)
+```
+
+
+#### Carga de leyenda de estudio
+```{r}
+bu <- read_excel(path = "./Barrios_Usuarios.xlsx") %>% data.frame()
+```
+
+#### Limpieza de leyenda
+```{r}
+bu <- bu %>% fill(REGIÓN, .direction = 'down')
+bu <- bu %>% fill(PROVINCIA, .direction = 'down')
+#- Preguntar/ver/revisar por que esta tabla tiene varios valores de encuesta.
+bu <- bu %>% drop_na(ENCUESTAS)
+bu <- bu %>% fill(BARRIO, .direction = 'down')
+#aggregate(x = bu$ENCUESTAS, by = list(ENCUESTAS = bu$ENCUESTAS, FUN = "sum")
+```
+
+#### Muestra general de leyenda
+```{r}
+bu
+```
+
+
+
+#### Carga de datos de estudio
+```{r include=FALSE}
+df <- read_excel(path = "./Datos_LP.xlsx") %>% data.frame()
+```
+#### Limpieza de datos
+
+```{r}
+#colnames(datos)
+```
+
+#### Muestra general de datos
+```{r}
+df %>% head()
+```
+
+## Seleccion de variables de estudio para descripciones graficas
+
+### Variable categórica medida en escala nominal
+
+  COMPLETAR
+
+
+###  Variable categórica medida en escala ordinal
+
+  COMPLETAR
+
+### Variable categórica de respuesta múltiple
+
+  Nos interesaria analizar la pregunta "10.6.2. ¿Hay plagas en su vivienda y en los alrededores de la misma? ¿Cuales?". Que tiene como respuestas las opciones Cucarachas, Mosquitos y o Ratas. Para ver si existe una relacion con la cantidad de personas que duermen en una misma habitacion. Esta informaicion se obiene de la pregunta "3.2. ¿Cuál es el número MÁXIMO de personas que duermen en estos dormitorios usualmente? (Opciones: 1 a más de 10)"
+
+
+```{r}
+summary(datos$...93)
+```
+
+
+### Variable cuantitativa discreta
+
+  COMPLETAR CON 1.4
+
+### Variable cuantitativa continua
+
+  COMPLETAR CON 4.4.1
+
+
+## Medidas de posicion seleccionadas
+
+  COMPLETAR CON medida de posición que mejor acompañe a los recursos gráficos
+anteriormente mencionados
+
+  COMPLETAR CON consideraciones sobre la dispersión de las variables (puede ser a través de una medida resumen o a partir de algún recurso gráfico), en aquellos casos en los que sea apropiado
+
+
+## Descripciones graficas de la relación entre variables
+
+### Dos variables categóricas
+
+  COMPLETAR CON 7.2 y 7.4
+
+### Una variable categórica y una variable cuantitativa
+
+  COMPLETAR CON
+  5.3. ¿Cómo es la presión del agua?
+  5.3.1. Buena / Débil / Muy débil
+  5.4. ¿Cuál es el gasto promedio que destinan a este servicio de agua?
+
+### Dos variables cuantitativas
+
+  COMPLETAR
