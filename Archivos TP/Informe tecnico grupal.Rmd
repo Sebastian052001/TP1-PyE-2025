@@ -6,39 +6,52 @@ output:
 date: "2025-04-11"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Instalacion de librerias para informe preliminar
+
+Librerias necesarias para el informe.
+
+```{r message=FALSE, warning=FALSE}
+packages <- c("readxl", "dplyr", "tidyr")
 ```
 
+Instalacion de librerías.
 
-*Instalacion de librerias para informe preliminar
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(include = FALSE)
-install.packages("readxl")
-install.packages('tidyr')
-install.packages("dplyr")
+```{r message=FALSE, warning=FALSE}
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
 ```
 
-*Carga de librerias
-```{r include=FALSE}
-library(readxl)
-library(tidyr)
-library(dplyr)
+Carga de librerías.
+```{r message=FALSE, warning=FALSE}
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
 ```
 
+## Carga de datos
 
-#### Carga de leyenda de estudio
+Carga de datos sobre encuentas realizadas por barrios, provincia y region. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
+
 ```{r}
 bu <- read_excel(path = "./Barrios_Usuarios.xlsx") %>% data.frame()
+
+bu %>% head()
 ```
 
-#### Limpieza de leyenda
+Realizamos un tratamiento de los datos de encuestas en barrios completando campos faltantes y eliminando filas con encuestas vacias. Se observa que los barrios se repiten, es decir que algunos tienen varias encuestas. Para facilitar el analisis posterior vamos a sumar estos valores.
+
 ```{r}
 bu <- bu %>% fill(REGIÓN, .direction = 'down')
 bu <- bu %>% fill(PROVINCIA, .direction = 'down')
-#- Preguntar/ver/revisar por que esta tabla tiene varios valores de encuesta.
 bu <- bu %>% drop_na(ENCUESTAS)
 bu <- bu %>% fill(BARRIO, .direction = 'down')
+
+bu %>% head(10)
+```
+
+
+```{r}
 #aggregate(x = bu$ENCUESTAS, by = list(ENCUESTAS = bu$ENCUESTAS, FUN = "sum")
 ```
 
@@ -81,7 +94,7 @@ df %>% head()
 
 
 ```{r}
-summary(datos$...93)
+summary(df$...93)
 ```
 
 

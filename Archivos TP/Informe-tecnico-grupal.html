@@ -355,135 +355,715 @@ display: none;
 </div>
 
 
-<pre class="r"><code>datos &lt;- readxl::read_excel(path = &quot;./Datos_LP.xlsx&quot;)</code></pre>
-<pre><code>## New names:
-## • `` -&gt; `...5`
-## • `` -&gt; `...6`
-## • `` -&gt; `...7`
-## • `` -&gt; `...8`
-## • `` -&gt; `...9`
-## • `` -&gt; `...10`
-## • `` -&gt; `...11`
-## • `` -&gt; `...12`
-## • `` -&gt; `...14`
-## • `` -&gt; `...16`
-## • `` -&gt; `...17`
-## • `` -&gt; `...18`
-## • `` -&gt; `...19`
-## • `` -&gt; `...20`
-## • `` -&gt; `...21`
-## • `` -&gt; `...22`
-## • `` -&gt; `...23`
-## • `` -&gt; `...25`
-## • `` -&gt; `...26`
-## • `` -&gt; `...27`
-## • `` -&gt; `...28`
-## • `` -&gt; `...29`
-## • `` -&gt; `...30`
-## • `` -&gt; `...31`
-## • `` -&gt; `...32`
-## • `` -&gt; `...33`
-## • `` -&gt; `...34`
-## • `` -&gt; `...35`
-## • `` -&gt; `...36`
-## • `` -&gt; `...37`
-## • `` -&gt; `...39`
-## • `` -&gt; `...40`
-## • `` -&gt; `...41`
-## • `` -&gt; `...42`
-## • `` -&gt; `...43`
-## • `` -&gt; `...44`
-## • `` -&gt; `...45`
-## • `` -&gt; `...46`
-## • `` -&gt; `...47`
-## • `` -&gt; `...48`
-## • `` -&gt; `...49`
-## • `` -&gt; `...51`
-## • `` -&gt; `...52`
-## • `` -&gt; `...53`
-## • `` -&gt; `...54`
-## • `` -&gt; `...55`
-## • `` -&gt; `...57`
-## • `` -&gt; `...58`
-## • `` -&gt; `...59`
-## • `` -&gt; `...60`
-## • `` -&gt; `...62`
-## • `` -&gt; `...63`
-## • `` -&gt; `...64`
-## • `` -&gt; `...65`
-## • `` -&gt; `...66`
-## • `` -&gt; `...67`
-## • `` -&gt; `...68`
-## • `` -&gt; `...69`
-## • `` -&gt; `...70`
-## • `` -&gt; `...71`
-## • `` -&gt; `...72`
-## • `` -&gt; `...73`
-## • `` -&gt; `...74`
-## • `` -&gt; `...75`
-## • `` -&gt; `...76`
-## • `` -&gt; `...77`
-## • `` -&gt; `...78`
-## • `` -&gt; `...79`
-## • `` -&gt; `...80`
-## • `` -&gt; `...81`
-## • `` -&gt; `...82`
-## • `` -&gt; `...83`
-## • `` -&gt; `...84`
-## • `` -&gt; `...85`
-## • `` -&gt; `...86`
-## • `` -&gt; `...88`
-## • `` -&gt; `...89`
-## • `` -&gt; `...90`
-## • `` -&gt; `...91`
-## • `` -&gt; `...92`
-## • `` -&gt; `...93`
-## • `` -&gt; `...94`
-## • `` -&gt; `...95`
-## • `` -&gt; `...97`
-## • `` -&gt; `...98`
-## • `` -&gt; `...99`
-## • `` -&gt; `...100`
-## • `` -&gt; `...101`
-## • `` -&gt; `...102`
-## • `` -&gt; `...103`
-## • `` -&gt; `...104`
-## • `` -&gt; `...105`
-## • `` -&gt; `...106`
-## • `` -&gt; `...107`
-## • `` -&gt; `...108`
-## • `` -&gt; `...109`
-## • `` -&gt; `...110`
-## • `` -&gt; `...111`
-## • `` -&gt; `...112`
-## • `` -&gt; `...113`
-## • `` -&gt; `...114`
-## • `` -&gt; `...115`
-## • `` -&gt; `...116`
-## • `` -&gt; `...117`
-## • `` -&gt; `...118`</code></pre>
-<pre class="r"><code>attach(datos)</code></pre>
-<div id="seleccion-de-variables-de-estudio" class="section level1">
-<h1>Seleccion de variables de estudio</h1>
-<div id="para-descripción-gráfica-de-una-variable-categórica-medida-en-escala-nominal" class="section level3">
-<h3>Para descripción gráfica de una variable categórica medida en escala
-nominal</h3>
-<pre><code>COMPLETAR</code></pre>
+<div id="instalacion-de-librerias-para-informe-preliminar" class="section level2">
+<h2>Instalacion de librerias para informe preliminar</h2>
+<p>Librerias necesarias para el informe.</p>
+<pre class="r"><code>packages &lt;- c(&quot;readxl&quot;, &quot;dplyr&quot;, &quot;tidyr&quot;)</code></pre>
+<p>Instalacion de librerías.</p>
+<pre class="r"><code>installed_packages &lt;- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}</code></pre>
+<p>Carga de librerías.</p>
+<pre class="r"><code># Packages loading
+invisible(lapply(packages, library, character.only = TRUE))</code></pre>
 </div>
-<div id="para-descripción-gráfica-de-una-variable-categórica-medida-en-escala-nominal-1" class="section level3">
-<h3>Para descripción gráfica de una variable categórica medida en escala
-nominal</h3>
+<div id="carga-de-datos" class="section level2">
+<h2>Carga de datos</h2>
+<p>Carga de datos sobre encuentas realizadas por barrios, provincia y
+region. Vemos que los datos requiren un tratamiento previo al analisis
+por campos vacíos.</p>
+<pre class="r"><code>bu &lt;- read_excel(path = &quot;./Barrios_Usuarios.xlsx&quot;) %&gt;% data.frame()
+
+bu %&gt;% head()</code></pre>
+<pre><code>##   REGIÓN  PROVINCIA             BARRIO ENCUESTAS
+## 1   &lt;NA&gt;       &lt;NA&gt;               &lt;NA&gt;        NA
+## 2   CUYO    Mendoza       Constitución        60
+## 3   &lt;NA&gt;   La Rioja Virgen Desatanudos        30
+## 4 CENTRO    Córdoba            Alberdi        59
+## 5   &lt;NA&gt; Entre Ríos           Gualeyán        27
+## 6   &lt;NA&gt;   Santa Fe        La Cariñosa        25</code></pre>
+<p>Realizamos un tratamiento de los datos de encuestas en barrios
+completando campos faltantes y eliminando filas con encuestas vacias. Se
+observa que los barrios se repiten, es decir que algunos tienen varias
+encuestas. Para facilitar el analisis posterior vamos a sumar estos
+valores.</p>
+<pre class="r"><code>bu &lt;- bu %&gt;% fill(REGIÓN, .direction = &#39;down&#39;)
+bu &lt;- bu %&gt;% fill(PROVINCIA, .direction = &#39;down&#39;)
+bu &lt;- bu %&gt;% drop_na(ENCUESTAS)
+bu &lt;- bu %&gt;% fill(BARRIO, .direction = &#39;down&#39;)
+
+bu %&gt;% head(10)</code></pre>
+<pre><code>##    REGIÓN  PROVINCIA             BARRIO ENCUESTAS
+## 1    CUYO    Mendoza       Constitución        60
+## 2    CUYO   La Rioja Virgen Desatanudos        30
+## 3  CENTRO    Córdoba            Alberdi        59
+## 4  CENTRO Entre Ríos           Gualeyán        27
+## 5  CENTRO   Santa Fe        La Cariñosa        25
+## 6  CENTRO   Santa Fe             Chalet        15
+## 7    CABA       CABA           Zavaleta        15
+## 8    CABA       CABA           Zavaleta        25
+## 9    CABA       CABA           Villa 20        88
+## 10   CABA       CABA           Villa 31        50</code></pre>
+<pre class="r"><code>#aggregate(x = bu$ENCUESTAS, by = list(ENCUESTAS = bu$ENCUESTAS, FUN = &quot;sum&quot;)</code></pre>
+<div id="muestra-general-de-leyenda" class="section level4">
+<h4>Muestra general de leyenda</h4>
+<pre class="r"><code>bu</code></pre>
+<pre><code>##       REGIÓN  PROVINCIA                     BARRIO ENCUESTAS
+## 1       CUYO    Mendoza               Constitución        60
+## 2       CUYO   La Rioja         Virgen Desatanudos        30
+## 3     CENTRO    Córdoba                    Alberdi        59
+## 4     CENTRO Entre Ríos                   Gualeyán        27
+## 5     CENTRO   Santa Fe                La Cariñosa        25
+## 6     CENTRO   Santa Fe                     Chalet        15
+## 7       CABA       CABA                   Zavaleta        15
+## 8       CABA       CABA                   Zavaleta        25
+## 9       CABA       CABA                   Villa 20        88
+## 10      CABA       CABA                   Villa 31        50
+## 11      CABA       CABA                   Villa 31        57
+## 12       PBA       BsAs                 Los Alamos        94
+## 13       PBA       BsAs       Altos de San Lorenzo        60
+## 14       PBA       BsAs                 Las Dalias        51
+## 15       PBA       BsAs            Villa Cordobita        40
+## 16       PBA       BsAs                Las Quintas        47
+## 17       NEA Corrientes                 Río Paraná         7
+## 18       NEA Corrientes                 Río Paraná        18
+## 19       NEA Corrientes                 Río Paraná        13
+## 20       NEA Corrientes                 Río Paraná        13
+## 21       NEA   Misiones Villa Cabello (Chacra 159)        48
+## 22       NEA    Formosa          San Juan Bautista        40
+## 23       NEA      Chaco                 Chacra 136         5
+## 24       NEA      Chaco                 Chacra 136        10
+## 25       NEA      Chaco                 Chacra 136         8
+## 26       NEA      Chaco                 Chacra 136        13
+## 27 PATAGONIA  Río Negro               Fiske Menuco        70
+## 28 PATAGONIA Santa Cruz          Madres a la lucha        17
+## 29 PATAGONIA Santa Cruz          Madres a la lucha        17
+## 30 PATAGONIA Santa Cruz          Madres a la lucha        18
+## 31       NOA      Jujuy           28 de Septiembre        56
+## 32       NOA    Tucumán                11 de Enero        40
+## 33       NOA   Santiago                   Bosco II        32
+## 34       NOA   Santiago                   Bosco II      1168</code></pre>
+</div>
+<div id="carga-de-datos-de-estudio" class="section level4">
+<h4>Carga de datos de estudio</h4>
+</div>
+<div id="limpieza-de-datos" class="section level4">
+<h4>Limpieza de datos</h4>
+<pre class="r"><code>#colnames(datos)</code></pre>
+</div>
+<div id="muestra-general-de-datos" class="section level4">
+<h4>Muestra general de datos</h4>
+<pre class="r"><code>df %&gt;% head()</code></pre>
+<pre><code>##   Orden.inicial PROVINCIA       BARRIO
+## 1            NA      &lt;NA&gt;         &lt;NA&gt;
+## 2            NA      &lt;NA&gt;         &lt;NA&gt;
+## 3             1      CABA     VILLA 20
+## 4             2   Mendoza CONSTITUCIÓN
+## 5             3   Mendoza CONSTITUCIÓN
+## 6             4      CABA     VILLA 20
+##   Sección.1..Características.generales.de.la.composición.del.hogar
+## 1                                                             &lt;NA&gt;
+## 2                                            Edad jefe/a del hogar
+## 3                                                             38.0
+## 4                                                             57.0
+## 5                                                             37.0
+## 6                                                             37.0
+##                                                   ...5
+## 1                                                  1.3
+## 2 Tiempo de residencia en la vivienda actual (en años)
+## 3                                                  5.0
+## 4                                                 16.0
+## 5                                                 14.0
+## 6                                                  3.0
+##                                       ...6
+## 1                                      1.4
+## 2 ¿Cuántos integrantes hay en su vivienda?
+## 3                                      6.0
+## 4                                      5.0
+## 5                                      3.0
+## 6                                      3.0
+##                                                                   ...7
+## 1                                                                  1.5
+## 2 ¿Cuántas familias o grupos familiares conviven en la misma vivienda?
+## 3                                                                  1.0
+## 4                                                                  2.0
+## 5                                                                  2.0
+## 6                                                                  1.0
+##                                     ...8                                 ...9
+## 1                                    1.6                                  1.7
+## 2 ¿Cuántos varones hay en la vivienda?\n ¿Cuántas mujeres hay en la vivienda?
+## 3                                    1.0                                  5.0
+## 4                                    3.0                                  2.0
+## 5                                    2.0                                  2.0
+## 6                                    3.0                                  0.0
+##                                                          ...10
+## 1                                                          1.8
+## 2 ¿Cuántas personas de género disidente hay en la vivienda? \n
+## 3                                                          0.0
+## 4                                                          0.0
+## 5                                                          0.0
+## 6                                                          0.0
+##                                                        ...11
+## 1                                                        1.9
+## 2 ¿Cuántas personas menores de 18 años hay en la vivienda?\n
+## 3                                                        4.0
+## 4                                                        3.0
+## 5                                                        1.0
+## 6                                                        1.0
+##                                                                            ...12
+## 1                                                                            1.1
+## 2 ¿En la vivienda conviven personas con alguna de las siguientes discapacidades?
+## 3                                                                            2.0
+## 4                                                                            2.0
+## 5                                                                            2.0
+## 6                                                                            2.0
+##                                         Sección.3..Hacinamiento.
+## 1                                                            3.1
+## 2 ¿Cuántos ambientes en su vivienda se utilizan como dormitorio?
+## 3                                                            4.0
+## 4                                                            2.0
+## 5                                                            3.0
+## 6                                                            2.0
+##                                                                                ...14
+## 1                                                                                3.2
+## 2 ¿Cuál es el número MÁXIMO de personas que duermen en estos dormitorios usualmente?
+## 3                                                                                2.0
+## 4                                                                                2.0
+## 5                                                                                2.0
+## 6                                                                                3.0
+##                          Sección.4..Propiedad
+## 1                                         4.1
+## 2 ¿Posee el Certificado de Vivienda (RENABAP)
+## 3                                          No
+## 4                                          No
+## 5                                          No
+## 6                                          No
+##                                                                  ...16
+## 1                                                                4.2.1
+## 2 ¿Atravesó algún intento de desalojo desde que vive en esta vivienda?
+## 3                                                                   No
+## 4                                                                   No
+## 5                                                                   Sí
+## 6                                                                   No
+##                                            ...17
+## 1                                          4.2.2
+## 2 ¿Cuántas veces tuvo algún intento de desalojo?
+## 3                                           &lt;NA&gt;
+## 4                                           &lt;NA&gt;
+## 5                                              1
+## 6                                           &lt;NA&gt;
+##                                                                ...18
+## 1                                                              4.2.3
+## 2 ¿Cuánto tiempo (en años) pasó desde el último intento de desalojo?
+## 3                                                               &lt;NA&gt;
+## 4                                                               &lt;NA&gt;
+## 5                                                                  0
+## 6                                                               &lt;NA&gt;
+##                                      ...19
+## 1                                      4.3
+## 2     El lugar que habitan actualmente es:
+## 3 Propio con algún comprobante de tenencia
+## 4                                 Prestado
+## 5                                 Prestado
+## 6 Propio con algún comprobante de tenencia
+##                                                                              ...20
+## 1                                                                            4.4.1
+## 2 En el caso que la vivienda sea alquilada, ¿tiene algún tipo de contrato firmado?
+## 3                                                                             &lt;NA&gt;
+## 4                                                                             &lt;NA&gt;
+## 5                                                                             &lt;NA&gt;
+## 6                                                                             &lt;NA&gt;
+##                                 ...21                             ...22
+## 1                               4.4.2                             4.4.3
+## 2 ¿Cuál es el costo actual del mismo? ¿Cuánto aumentó en el último año?
+## 3                                &lt;NA&gt;                              &lt;NA&gt;
+## 4                                &lt;NA&gt;                              &lt;NA&gt;
+## 5                                &lt;NA&gt;                              &lt;NA&gt;
+## 6                                &lt;NA&gt;                              &lt;NA&gt;
+##                                    ...23
+## 1                                  4.4.4
+## 2 Porcentaje de aumento en el último año
+## 3                                   &lt;NA&gt;
+## 4                                   &lt;NA&gt;
+## 5                                   &lt;NA&gt;
+## 6                                   &lt;NA&gt;
+##                                                                                                                                                                      Sección.5..Agua.y.saneamiento
+## 1                                                                                                                                                                                              5.1
+## 2                                                                                                                                             ¿De qué forma obtiene el agua dentro de su vivienda?
+## 3                                                                                                                                                                                          No sabe
+## 4                                                                                                                                            A través de una conexión con medidor a la red pública
+## 5 A través de una conexión sin medidor, es decir “informalmente”, sea a través de una conexión directa a la red pública o a través de una conexión indirecta a través de un vecinx “informalmente”
+## 6                                                                                                                                            A través de una conexión con medidor a la red pública
+##                                                                        ...25
+## 1                                                                        5.2
+## 2 ¿Se ve usted obligado/a a comprar agua embotellada para consumo del hogar?
+## 3                                                                         No
+## 4                                                                         No
+## 5                                                                         No
+## 6                                                                         No
+##                           ...26
+## 1                           5.3
+## 2 ¿Cómo es la presión del agua?
+## 3                         Buena
+## 4                         Débil
+## 5                         Buena
+## 6                         Buena
+##                                                   ...27
+## 1                                                 5.4.1
+## 2 ¿Tiene capacidad de almacenamiento de agua en altura?
+## 3                                                    Sí
+## 4                                                    No
+## 5                                                    No
+## 6                                                    Sí
+##                                              ...28
+## 1                                            5.4.2
+## 2 ¿Cuántos litros de almacenamiento de agua posee?
+## 3                                   Más de 500 lts
+## 4                                             &lt;NA&gt;
+## 5                                             &lt;NA&gt;
+## 6                                   Más de 500 lts
+##                                 ...29
+## 1                                 5.5
+## 2 ¿Posee baño/letrina en la vivienda?
+## 3           Si, dentro de la vivienda
+## 4           Si, dentro de la vivienda
+## 5            Si, fuera de la vivienda
+## 6           Si, dentro de la vivienda
+##                                                   ...30
+## 1                                                   5.6
+## 2 ¿En dónde suele higienizarse si no es en su vivienda?
+## 3                                                  &lt;NA&gt;
+## 4                                                  &lt;NA&gt;
+## 5                                                  &lt;NA&gt;
+## 6                                                  &lt;NA&gt;
+##                                                     ...31
+## 1                                                     5.7
+## 2 ¿Los baños son compartidos con otros grupos familiares?
+## 3                                                      No
+## 4                                                      No
+## 5                                                      Sí
+## 6                                                      Sí
+##                                      ...32
+## 1                                      5.8
+## 2 ¿Su baño/letrina posee descarga de agua?
+## 3       Si, posee cadena/botón de descarga
+## 4       Descargamos manualmente con baldes
+## 5       Si, posee cadena/botón de descarga
+## 6       Si, posee cadena/botón de descarga
+##                                     ...33
+## 1                                     5.9
+## 2 ¿Qué tipo de desagüe posee la vivienda?
+## 3           Desagüe a red cloacal pública
+## 4                      A pozo negro/ciego
+## 5           Desagüe a red cloacal pública
+## 6           Desagüe a red cloacal pública
+##                                      ...34
+## 1                                     5.10
+## 2 ¿Posee instalación de agua en la cocina?
+## 3                                       Sí
+## 4                                       Sí
+## 5                                       Sí
+## 6                                       Sí
+##                                                             ...35
+## 1                                                            5.11
+## 2 ¿Posee instalación de agua CALIENTE en la cocina? ¿De qué tipo?
+## 3                                     Si, con una ducha eléctrica
+## 4                                          No tengo agua caliente
+## 5                                     Si, con una ducha eléctrica
+## 6                                     Si, con una ducha eléctrica
+##                                    ...36
+## 1                                   5.12
+## 2 ¿Posee instalación de agua en el baño?
+## 3                                     Sí
+## 4                                     Sí
+## 5                                     Sí
+## 6                                     Sí
+##                                                           ...37
+## 1                                                          5.13
+## 2 ¿Posee instalación de agua CALIENTE en el baño? ¿De qué tipo?
+## 3                                  Si, con un termotanque a gas
+## 4                                  Si, con un calefón eléctrico
+## 5                                  Si, con un termotanque a gas
+## 6                                  Si, con un termotanque a gas
+##                                 Sección.6..Cocina.y.calefacción
+## 1                                                           6.1
+## 2 ¿Qué fuentes de energía utilizan para cocinar en su vivienda?
+## 3                                      Gas natural (red de gas)
+## 4                                                          &lt;NA&gt;
+## 5                                      Gas natural (red de gas)
+## 6                                      Gas natural (red de gas)
+##                      ...39 ...40 ...41 ...42
+## 1                     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 2                     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 3                     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 4 Gas natural (red de gas)  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 5                     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 6                     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+##                                                                                 ...43
+## 1                                                                                 6.2
+## 2 ¿Cuál es la principal fuente de energía que utiliza para calefaccionar la vivienda?
+## 3                                                            Gas natural (red de gas)
+## 4                                                                                &lt;NA&gt;
+## 5                                                            Gas natural (red de gas)
+## 6                                                            Gas natural (red de gas)
+##                    ...44 ...45 ...46 ...47 ...48
+## 1                   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 2                   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 3                   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 4 Gas envasado (garrafa)  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 5                   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 6                   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+##                                                                                  ...49
+## 1                                                                                  6.3
+## 2 ¿Tenés algún tipo de ventilación para la calefacción? (solo para leña, carbón y gas)
+## 3                                                                                 &lt;NA&gt;
+## 4                                                                                 &lt;NA&gt;
+## 5                                                                                 &lt;NA&gt;
+## 6                                                                                 &lt;NA&gt;
+##                         Sección.7..Electricidad.....
+## 1                                                7.1
+## 2    ¿Qué tipo de conexión posee a la red eléctrica?
+## 3 Conexión a través de un medidor a la red eléctrica
+## 4 Conexión a través de un medidor a la red eléctrica
+## 5 Conexión a través de un medidor a la red eléctrica
+## 6 Conexión a través de un medidor a la red eléctrica
+##                                                              ...51
+## 1                                                              7.2
+## 2      ¿Qué tipo de tendido eléctrico posee dentro de la vivienda?
+## 3                            Todo el tendido dentro de las paredes
+## 4 Tendido fuera de las paredes o parcialmente fuera de las paredes
+## 5 Tendido fuera de las paredes o parcialmente fuera de las paredes
+## 6                            Todo el tendido dentro de las paredes
+##                                                                                                                                 ...52
+## 1                                                                                                                                 7.3
+## 2 ¿Sufrió la pérdida de electrodomésticos o herramientas de trabajo por las condiciones de la instalación eléctrica EN EL ÚLTIMO AÑO?
+## 3                                                                                                                                  No
+## 4                                                                                                                                  No
+## 5                                                                                                                                  No
+## 6                                                                                                                                  No
+##                                                                                                                 ...53
+## 1                                                                                                                 7.4
+## 2 ¿Sufrió incendios dentro de su vivienda durante el último año debido a las condiciones de la instalación eléctrica?
+## 3                                                                                                                  No
+## 4                                                                                                                  No
+## 5                                                                                                                  No
+## 6                                                                                                                  Sí
+##                                                            ...54
+## 1                                                            7.5
+## 2 ¿Son frecuentes los cortes del suministro eléctrico en verano?
+## 3                                              No son frecuentes
+## 4                                              No son frecuentes
+## 5                                Por lo menos 2 cortes en el mes
+## 6                                              No son frecuentes
+##                                                              ...55
+## 1                                                              7.6
+## 2 ¿Son frecuentes los cortes del suministro eléctrico en invierno?
+## 3                                                No son frecuentes
+## 4                                                No son frecuentes
+## 5                                  Por lo menos 2 cortes en el mes
+## 6                                                No son frecuentes
+##                                  Sección.8..Conectividad....
+## 1                                                        8.1
+## 2 ¿Posee servicio de internet de banda ancha en la vivienda?
+## 3                                   Si inálambrico/satelital
+## 4                           No poseo internet de banda ancha
+## 5                           No poseo internet de banda ancha
+## 6                                   Si inálambrico/satelital
+##                                                                                                            ...57
+## 1                                                                                                          8.2.1
+## 2 En su hogar hay AL MENOS UN celular que permite el acceso a internet a través de datos móviles (abono/tarjeta)
+## 3                                                                                                             Sí
+## 4                                                                                                             No
+## 5                                                                                                             No
+## 6                                                                                                             Sí
+##                                                                         ...58
+## 1                                                                       8.2.2
+## 2 ¿Cuántos abonos/prepagos de datos móviles sostienen por mes en la vivienda?
+## 3                                                                           2
+## 4                                                                           0
+## 5                                                                           0
+## 6                                                                           2
+##                                                                                ...59
+## 1                                                                                8.3
+## 2 ¿Cuántas computadoras de escritorio, notebooks y/o netbooks poseen en la vivienda?
+## 3                                                                                  0
+## 4                                                                                  0
+## 5                                                                                  0
+## 6                                                                                  0
+##                                                   ...60  Sección.9..Materiales
+## 1                                                   8.4                    9.1
+## 2 ¿Cuántos teléfonos y/o tablets poseen en la vivienda?     ¿Tiene contrapiso?
+## 3                                                     3               Si tengo
+## 4                                                     1               Si tengo
+## 5                                                     2               Si tengo
+## 6                                                     1 No vivo en planta baja
+##                                                                 ...62
+## 1                                                                 9.2
+## 2 ¿De qué material está hecho el piso (revestimiento) de su vivienda?
+## 3                                                            Cerámico
+## 4                                                  Carpeta de cemento
+## 5                                                  Carpeta de cemento
+## 6                                                            Cerámico
+##                                                                                ...63
+## 1                                                                                9.3
+## 2 Respecto al techo de su vivienda, ¿de qué material está construido principalmente?
+## 3                                                                               Lona
+## 4                                                                   Losa de viguetas
+## 5                                                                   Losa de viguetas
+## 6                                                                   Losa de viguetas
+##                                  ...64
+## 1                                  9.4
+## 2 ¿El techo tiene aislamiento térmico?
+## 3                                   Sí
+## 4                                   Sí
+## 5                                   No
+## 6                              No sabe
+##                                                                                                            ...65
+## 1                                                                                                            9.5
+## 2 ¿De qué material son las puertas que dan al exterior de la vivienda? Marque TODAS las opciones que corresponda
+## 3                                                                                                           &lt;NA&gt;
+## 4                                                                                             Carpeta de cemento
+## 5                                                                                             Carpeta de cemento
+## 6                                                                                                           &lt;NA&gt;
+##   ...66    ...67 ...68
+## 1  &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;
+## 2  &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;
+## 3  &lt;NA&gt; Cerámico  &lt;NA&gt;
+## 4  &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;
+## 5  &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;
+## 6  &lt;NA&gt; Cerámico  &lt;NA&gt;
+##                                                                                                  ...69
+## 1                                                                                                  9.7
+## 2 Respecto a las paredes exteriores de su vivienda, ¿de qué material están construidas principalmente?
+## 3                                                                          Planchón (describir qué es)
+## 4                                                                          Mampostería (ladrillo/block
+## 5                                                                                                Adobe
+## 6                                                                          Mampostería (ladrillo/block
+##                                                 ...70
+## 1                                               9.8.1
+## 2 ¿Tienen terminación exterior? (revoque y/o pintado)
+## 3                                                  Sí
+## 4                                                  Sí
+## 5                                                  No
+## 6                                                  Sí
+##                                               ...71
+## 1                                             9.8.2
+## 2          ¿De qué tipo es la terminación exterior?
+## 3                     Revoque con impermeabilizante
+## 4 Tiene revoque pero no sé si está impermeabilizado
+## 5 Tiene revoque pero no sé si está impermeabilizado
+## 6                     Revoque con impermeabilizante
+##                            ...72
+## 1                          9.8.3
+## 2 ¿Tiene terminación de pintura?
+## 3                             Sí
+## 4                             Sí
+## 5                             No
+## 6                             Sí
+##                                                               ...73  ...74
+## 1                                                               9.9   &lt;NA&gt;
+## 2 Su vivienda, ¿posee problemas de humedad graves y/o filtraciones?   &lt;NA&gt;
+## 3                                                              &lt;NA&gt;   &lt;NA&gt;
+## 4                                                              &lt;NA&gt;   &lt;NA&gt;
+## 5                                                       Dormitorios Cocina
+## 6                                                              &lt;NA&gt;   &lt;NA&gt;
+##   ...75 ...76                                          ...77 ...78
+## 1  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 2  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 3  &lt;NA&gt;  &lt;NA&gt; No hay ningún problema de filtraciones/humedad  &lt;NA&gt;
+## 4  &lt;NA&gt;  &lt;NA&gt; No hay ningún problema de filtraciones/humedad  &lt;NA&gt;
+## 5  Baño  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 6  &lt;NA&gt;  &lt;NA&gt; No hay ningún problema de filtraciones/humedad  &lt;NA&gt;
+##                                                                         ...79
+## 1                                                                        9.10
+## 2 Su vivienda, ¿posee problemas estructurales graves, con riesgo de derrumbe?
+## 3                                                                        &lt;NA&gt;
+## 4                                                                        &lt;NA&gt;
+## 5                                                                 Dormitorios
+## 6                                                                        &lt;NA&gt;
+##   ...80 ...81 ...82                                          ...83 ...84
+## 1  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 2  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 3  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  Otro
+## 4  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; No hay ningún problema de filtraciones/humedad  &lt;NA&gt;
+## 5  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;                                           &lt;NA&gt;  &lt;NA&gt;
+## 6  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; No hay ningún problema de filtraciones/humedad  &lt;NA&gt;
+##                             ...85
+## 1                          9.11.1
+## 2 ¿Trabaja dentro en su vivienda?
+## 3                              Sí
+## 4                              No
+## 5                              No
+## 6                              No
+##                                             ...86
+## 1                                          9.11.2
+## 2 En el caso afirmativo, indique tipo de trabajo.
+## 3                                            &lt;NA&gt;
+## 4                                            &lt;NA&gt;
+## 5                                            &lt;NA&gt;
+## 6                                            &lt;NA&gt;
+##                      Sección.10..Servicios.barriales
+## 1                                               10.1
+## 2 ¿La calle de salida de su vivienda está asfaltada?
+## 3                                                 Sí
+## 4                                                 No
+## 5                                                 Sí
+## 6                                                 Sí
+##                                   ...88
+## 1                                  10.2
+## 2 ¿Su vivienda tiene salida a la calle?
+## 3                                    Sí
+## 4                                  &lt;NA&gt;
+## 5                                    Sí
+## 6                                    Sí
+##                                                               ...89
+## 1                                                              10.3
+## 2                             ¿Hay veredas en la calle de su hogar?
+## 3 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+## 4                                                                No
+## 5 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+## 6 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+##                                                               ...90
+## 1                                                              10.4
+## 2        En los alrededores de su vivienda, ¿hay alumbrado público?
+## 3 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+## 4 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+## 5 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+## 6 Sí, hechas por el Estado (municipio, provincia o Estado nacional)
+##                                                         ...91
+## 1                                                        10.5
+## 2 ¿Cómo calificaría el arbolado en la manzana de su vivienda?
+## 3                                                  Suficiente
+## 4                                                      Escaso
+## 5                                                      Escaso
+## 6                                                      Escaso
+##                                                                                              ...92
+## 1                                                                                           10.6.1
+## 2 ¿Hay plagas (cucarachas, mosquitos, ratas, etc) en su vivienda y en los alrededores de la misma?
+## 3                                                                                               Sí
+## 4                                                                                               No
+## 5                                                                                               Sí
+## 6                                                                                               No
+##             ...93 ...94 ...95
+## 1          10.6.2  &lt;NA&gt;  &lt;NA&gt;
+## 2 ¿Cuáles plagas?  &lt;NA&gt;  &lt;NA&gt;
+## 3      Cucarachas  &lt;NA&gt;  &lt;NA&gt;
+## 4            &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+## 5      Cucarachas  &lt;NA&gt; Ratas
+## 6            &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;
+##                                                                                                                 Sección.11..Ambiente
+## 1                                                                                                                             11.1.1
+## 2 Marque cuáles de los siguientes espacios de prácticas corporales y de esparcimiento se encuentran a menos de 500 m de su vivienda:
+## 3                                                                                                            Polideportivo municipal
+## 4                                                                                                                               &lt;NA&gt;
+## 5                                                                                                                               &lt;NA&gt;
+## 6                                                                                                            Polideportivo municipal
+##   ...97 ...98            ...99 ...100 ...101 ...102                    ...103
+## 1  &lt;NA&gt;  &lt;NA&gt;             &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;                      &lt;NA&gt;
+## 2  &lt;NA&gt;  &lt;NA&gt;             &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;                      &lt;NA&gt;
+## 3  &lt;NA&gt;  &lt;NA&gt;             &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;                      &lt;NA&gt;
+## 4  &lt;NA&gt;  &lt;NA&gt; Cancha de fútbol   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;                      &lt;NA&gt;
+## 5  &lt;NA&gt;  &lt;NA&gt;             &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt; No existen tales espacios
+## 6  &lt;NA&gt;  &lt;NA&gt;             &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;                      &lt;NA&gt;
+##   ...104                      ...105
+## 1   &lt;NA&gt;                      11.1.2
+## 2   &lt;NA&gt;          Frecuencia de uso:
+## 3   &lt;NA&gt;                 No hago uso
+## 4   &lt;NA&gt; Al menos una vez por semana
+## 5   &lt;NA&gt;                 No hago uso
+## 6   &lt;NA&gt; Al menos una vez por semana
+##                                                                                         ...106
+## 1                                                                                       11.2.1
+## 2 Indique con cuáles de los siguientes espacios verdes cuenta a menos de 500 m de su vivienda:
+## 3                                                                                         &lt;NA&gt;
+## 4                                                                                         &lt;NA&gt;
+## 5                                                                                         &lt;NA&gt;
+## 6                                                                                         &lt;NA&gt;
+##                               ...107                                ...108
+## 1                               &lt;NA&gt;                                  &lt;NA&gt;
+## 2                               &lt;NA&gt;                                  &lt;NA&gt;
+## 3                               &lt;NA&gt; Parque Urbano (Más de 5 ha hectáreas)
+## 4                               &lt;NA&gt;                                  &lt;NA&gt;
+## 5 Plaza (Entre 0,5 ha y 5 hectáreas)                                  &lt;NA&gt;
+## 6 Plaza (Entre 0,5 ha y 5 hectáreas)                                  &lt;NA&gt;
+##                      ...109                      ...110
+## 1                      &lt;NA&gt;                      11.2.2
+## 2                      &lt;NA&gt;          Frecuencia de uso:
+## 3                      &lt;NA&gt;                 No hago uso
+## 4 No existen tales espacios                 No hago uso
+## 5                      &lt;NA&gt; Al menos una vez por semana
+## 6                      &lt;NA&gt; Al menos una vez por semana
+##                               ...111
+## 1                               11.4
+## 2 ¿Qué frecuencia de tránsito tiene?
+## 3        1 colectivo cada 30 minutos
+## 4        1 colectivo cada 30 minutos
+## 5        1 colectivo cada 30 minutos
+## 6        1 colectivo cada 30 minutos
+##                                              ...112
+## 1                                              11.5
+## 2 ¿La frecuencia es dispar entre el día y la noche?
+## 3                                                Sí
+## 4                                                Sí
+## 5                                                Sí
+## 6                                                Sí
+##                                         ...113
+## 1                                         11.6
+## 2 ¿Tiene acceso al uso de bicicletas públicas?
+## 3                                           No
+## 4                                           No
+## 5                                           No
+## 6                                           No
+##                                 ...114
+## 1                                 11.7
+## 2 ¿Hay basurales cerca de su vivienda?
+## 3            Sí, a menos de 500 metros
+## 4                                   No
+## 5                                   No
+## 6                                   No
+##                                                                                    ...115
+## 1                                                                                    11.8
+## 2 ¿Tiene en su cuadra/pasillo un cesto o contenedor comunitario donde dejar sus residuos?
+## 3                                                                                   Sí, 1
+## 4                                                                                      No
+## 5                                                                                      No
+## 6                                                                                   Sí, 1
+##                                                                                                                 ...116
+## 1                                                                                                               11.9.1
+## 2                            ¿De qué manera lleva a cabo la eliminación de los residuos que se generan en su vivienda?
+## 3 El traslado de la basura al exterior del barrio queda a cuenta de cada vecine y/o se realiza por lxs propixs vecinxs
+## 4                                                   Recolección y traslado al exterior del barrio por Estado-Municipio
+## 5                                                   Recolección y traslado al exterior del barrio por Estado-Municipio
+## 6                                                   Recolección y traslado al exterior del barrio por Estado-Municipio
+##                                                                          ...117
+## 1                                                                        11.9.2
+## 2 ¿Con qué frecuencia el Municipio recolecta los residuos en sus inmediaciones?
+## 3                                                  Al menos 5 veces a la semana
+## 4                                                 Entre 2 y 4 veces a la semana
+## 5                                                 Entre 2 y 4 veces a la semana
+## 6                                                 Entre 2 y 4 veces a la semana
+##                                                                                                                                                                    ...118
+## 1                                                                                                                                                                   11.10
+## 2 Considere el riesgo de inundación de su vivienda según la experiencia de los últimos 2 años, ¿qué opción describe mejor la situación en los alrededores de su vivienda?
+## 3                                                                                                                                              No he sufrido inundaciones
+## 4                                                                                                                                              No he sufrido inundaciones
+## 5                                                                                                                                           Se inunda cada vez que llueve
+## 6                                                                                                                                              No he sufrido inundaciones</code></pre>
+</div>
+</div>
+<div id="seleccion-de-variables-de-estudio-para-descripciones-graficas" class="section level2">
+<h2>Seleccion de variables de estudio para descripciones graficas</h2>
+<div id="variable-categórica-medida-en-escala-nominal" class="section level3">
+<h3>Variable categórica medida en escala nominal</h3>
 <p>COMPLETAR</p>
 </div>
-<div id="variables-elegidas-para-la-descripción-gráfica-de-una-variable-categórica-medida-en-escala-ordinal" class="section level2">
-<h2>Variables elegidas para la descripción gráfica de una variable
-categórica medida en escala ordinal</h2>
+<div id="variable-categórica-medida-en-escala-ordinal" class="section level3">
+<h3>Variable categórica medida en escala ordinal</h3>
 <p>COMPLETAR</p>
 </div>
-</div>
-<div id="variables-elegidas-para-la-descripción-gráfica-de-una-variable-categórica-de-respuesta-múltiple." class="section level1">
-<h1>Variables elegidas para la descripción gráfica de una variable
-categórica de respuesta múltiple.</h1>
+<div id="variable-categórica-de-respuesta-múltiple" class="section level3">
+<h3>Variable categórica de respuesta múltiple</h3>
 <p>Nos interesaria analizar la pregunta “10.6.2. ¿Hay plagas en su
 vivienda y en los alrededores de la misma? ¿Cuales?”. Que tiene como
 respuestas las opciones Cucarachas, Mosquitos y o Ratas. Para ver si
@@ -491,23 +1071,43 @@ existe una relacion con la cantidad de personas que duermen en una misma
 habitacion. Esta informaicion se obiene de la pregunta “3.2. ¿Cuál es el
 número MÁXIMO de personas que duermen en estos dormitorios usualmente?
 (Opciones: 1 a más de 10)”</p>
-<p>-​ descripción gráfica de una variable cuantitativa discreta 1.4 -​
-descripción gráfica de una variable cuantitativa continua</p>
-<p>4.4.1</p>
-<p>-​ medida de posición que mejor acompañe a los recursos gráficos
-anteriormente mencionados -​ consideraciones sobre la dispersión de las
-variables (puede ser a través de una medida resumen o a partir de algún
-recurso gráfico), en aquellos casos en los que sea apropiado</p>
-<p>-​ descripción gráfica de la relación entre dos variables
-categóricas</p>
-<pre><code>  7.2 y 7.4</code></pre>
-<p>-​ descripción gráfica de la relación entre una variable categórica y
-una variable cuantitativa</p>
-<pre><code>    5.3. ¿Cómo es la presión del agua?
-        5.3.1. Buena / Débil / Muy débil
-    5.4. ¿Cuál es el gasto promedio que destinan a este servicio de agua?</code></pre>
-<p>-​ descripción gráfica de la relación entre dos variables
-cuantitativas</p>
+<pre class="r"><code>summary(df$...93)</code></pre>
+<pre><code>##    Length     Class      Mode 
+##      1224 character character</code></pre>
+</div>
+<div id="variable-cuantitativa-discreta" class="section level3">
+<h3>Variable cuantitativa discreta</h3>
+<p>COMPLETAR CON 1.4</p>
+</div>
+<div id="variable-cuantitativa-continua" class="section level3">
+<h3>Variable cuantitativa continua</h3>
+<p>COMPLETAR CON 4.4.1</p>
+</div>
+</div>
+<div id="medidas-de-posicion-seleccionadas" class="section level2">
+<h2>Medidas de posicion seleccionadas</h2>
+<p>COMPLETAR CON medida de posición que mejor acompañe a los recursos
+gráficos anteriormente mencionados</p>
+<p>COMPLETAR CON consideraciones sobre la dispersión de las variables
+(puede ser a través de una medida resumen o a partir de algún recurso
+gráfico), en aquellos casos en los que sea apropiado</p>
+</div>
+<div id="descripciones-graficas-de-la-relación-entre-variables" class="section level2">
+<h2>Descripciones graficas de la relación entre variables</h2>
+<div id="dos-variables-categóricas" class="section level3">
+<h3>Dos variables categóricas</h3>
+<p>COMPLETAR CON 7.2 y 7.4</p>
+</div>
+<div id="una-variable-categórica-y-una-variable-cuantitativa" class="section level3">
+<h3>Una variable categórica y una variable cuantitativa</h3>
+<p>COMPLETAR CON 5.3. ¿Cómo es la presión del agua? 5.3.1. Buena / Débil
+/ Muy débil 5.4. ¿Cuál es el gasto promedio que destinan a este servicio
+de agua?</p>
+</div>
+<div id="dos-variables-cuantitativas" class="section level3">
+<h3>Dos variables cuantitativas</h3>
+<p>COMPLETAR</p>
+</div>
 </div>
 
 
