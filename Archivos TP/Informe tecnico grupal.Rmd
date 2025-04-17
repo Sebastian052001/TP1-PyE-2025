@@ -6,16 +6,16 @@ output:
 date: "2025-04-11"
 ---
 
-## Instalacion de librerias para informe preliminar
+## Requermientos de RStudio
 
-  Librerias necesarias para el informe.
-
-```{r}
+  Para la elaboración del presente informe se reutilizarán técnicas de manipulación de datos previamente desarrolladas y documentadas en el repositorio del equipo de trabajo. Esto permitirá agilizar el procesamiento y asegurar la consistencia metodológica con informes anteriores.
+  
+  Los bloques de código iniciales permitirán instalar y cargar las librerías necesarias para la elaboración del informe. Estas librerías permiten la manipulación, visualización y análisis estadístico de los datos en el entorno de trabajo RStudio. El código contempla tanto la instalación (en caso de que no estén previamente disponibles) como la carga de los paquetes requeridos para garantizar la reproducibilidad del análisis.
+  
+```{r, setup}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message=FALSE)
 packages <- c("readxl", "dplyr", "tidyr", "data.table", "stringr")
 ```
-
-  Instalacion de librerías.
 
 ```{r}
 installed_packages <- packages %in% rownames(installed.packages())
@@ -24,52 +24,106 @@ if (any(installed_packages == FALSE)) {
 }
 ```
 
-  Carga de librerías.
-
-```{r message=FALSE, warning=FALSE}
+```{r}
 invisible(lapply(packages, library, character.only = TRUE))
 ```
 
-## Tratamiento de datos de barrios
+## Tratamiento de datos agrupados de encuestas
 
-  Carga de datos sobre encuentas realizadas por barrios, provincia y region. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
+  En una primera etapa, se procede a la carga de los datos generales correspondientes a las encuestas realizadas por barrio, provincia y región. Al analizar el conjunto de datos original, se detectan inconsistencias que requieren un proceso de limpieza previo al análisis estadístico.
+
+Entre las principales irregularidades se identifican:
+
+  - Campos vacíos resultantes de celdas combinadas en el archivo original (formato Excel).
+  - Registros duplicados o múltiples encuestas asociadas a un mismo barrio.
+  - Filas sin encuestas registradas (valores NA).
+
+El proceso de limpieza aplicado consistirá en completar los campos faltantes mediante propagación de valores válidos y en la eliminación de aquellas filas que no contengan datos relevantes para el análisis.
+
 
 ```{r}
+# Muestra exploratoria de datos
 bu <- read_excel(path = "./Barrios_Usuarios.xlsx") %>% data.frame()
-
-bu %>% head(10)
+bu
 ```
 
-  Realizamos un tratamiento de los datos de encuestas en barrios completando campos faltantes y eliminando filas con encuestas vacias. 
-
 ```{r}
+# Limpieza de datos
 bu <- bu %>% fill(REGIÓN, .direction = 'down')
 bu <- bu %>% fill(PROVINCIA, .direction = 'down')
 bu <- bu %>% drop_na(ENCUESTAS)
 bu <- bu %>% fill(BARRIO, .direction = 'down')
+```
 
+  Al continuar con la exploración de los datos, se identifica la existencia de barrios registrados en múltiples filas, cada una con un número distinto de encuestas asociadas. Esta duplicación puede deberse a errores en el archivo original o simplemente tratarse de valores desagrupados.
+
+  Con el objetivo de facilitar el análisis posterior y evitar distorsiones en los resultados, se optó por consolidar estos registros. Para ello, se agruparon las observaciones por barrio, sumando la cantidad total de encuestas correspondientes a cada uno. Posteriormente, se verificará la consistencia del procedimiento mediante controles cruzados con los datos originales.
+
+```{r}
+# Muestra de duplicados
 bu %>% group_by(BARRIO) %>% filter(n() > 1)
 ```
-  Se observa que los barrios se repiten, es decir que algunos tienen varias encuestas. Para facilitar el analisis posterior vamos a sumar estos valores.
 
 ```{r message=FALSE}
+# Agrupación de datos y suma de encuestas
 bu <- bu %>% group_by(REGIÓN, PROVINCIA, BARRIO) %>% summarise("TOTAL ENCUESTAS" = sum(ENCUESTAS))
 ```
 
-## Analisis de barrios
+## Analisis de encuestas
 
-  En este informe analizaremos los resultado de encuestas realizados sobre los barrios detallados debajo, en distintas regiones en Argentina. Se muestra además la cantidad total de encuestas realizadas sobre cada barrio.
+  En esta sección se analizarán los resultados obtenidos a partir de encuestas realizadas en distintos barrios del país, categorizados según sus respectivas provincias y regiones. Asimismo, se detalla la cantidad total de encuestas efectuadas en cada barrio, lo que permite dimensionar el alcance de la recolección de datos.
+
+  En una primera instancia, se observa la distribución de encuestas por región. Este análisis preliminar permite evaluar la representatividad de la muestra en relación con la población objetivo. Se destaca que la región del Noroeste Argentino concentra una proporción significativamente mayor de encuestas en comparación con el resto del país, lo cual constituye una posible fuente de sesgo en los resultados generales y deberá ser considerado en el análisis posterior.
 
 ```{r}
 bu %>% group_by(REGIÓN) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
 ```
 
+### Distribución de Encuestas por región
+
+  Dentro de la región del Noroeste Argentino (NOA), se identificó al barrio Bosco II con un número significativamente elevado de encuestas en comparación con otros barrios de la misma región y en otras regiones. Esta situación amerita una revisión detallada para verificar la validez de los datos y descartar posibles errores de carga o duplicación.
+
+  Se realizará un análisis específico sobre este caso para asegurar la integridad de la información antes de su inclusión en el análisis estadístico global.
+
+```{r}
+bu %>% filter(REGIÓN == "NOA")
+```
+
+### Distribución de Encuestas por provincia
+
+  El análisis a nivel provincial revela una distribución heterogénea en la cantidad de encuestas relevadas. Por ejemplo, la provincia del Chaco cuenta con solo 36 encuestas, mientras que la provincia de Buenos Aires presenta 292. Tal disparidad puede afectar la representatividad de los resultados.
+
+El caso de Santiago del Estero, particularmente el barrio Bosco II, ya fue abordado por su impacto en la concentración de datos. Esta variabilidad refuerza la necesidad de interpretar los resultados con cautela, reconociendo la posibilidad de sesgos derivados de un muestreo no equilibrado entre regiones y provincias.
+
 ```{r}
 bu %>% group_by(PROVINCIA) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
 ```
+### Distribución de Encuestas por barrio
+
+  Dada la alta concentración de encuestas en el barrio Bosco II, se observa que la media de encuestas por barrio no es un indicador adecuado para reflejar la distribución central de los datos. La presencia de valores atípicos puede distorsionar el cálculo de la media, haciéndola menos representativa del conjunto general. En este contexto, se opta por utilizar la mediana como medida central, ya que esta estadística es más robusta frente a los sesgos introducidos por la disparidad en la cantidad de encuestas entre barrios. Es decir, que analizaremos aproximadamente 51 encuestas por barrio.
 
 ```{r}
 bu %>% group_by(BARRIO) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
+```
+
+```{r}
+# Muestra de medidas características sobre la distrubución de encuestas en barrios
+bu %>% 
+  group_by(BARRIO) %>% 
+  summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`)) %>% 
+  select(`TOTAL ENCUESTAS`) %>%
+  summary()
+```
+
+```{r}
+# Muestra de medidas características sobre la distrubución de encuestas en barrios
+# Analisis sin outlier
+bu %>% 
+  filter(`TOTAL ENCUESTAS`<1200) %>%
+  group_by(BARRIO) %>% 
+  summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`)) %>% 
+  select(`TOTAL ENCUESTAS`) %>%
+  summary()
 ```
 
 ## Tratamiento de datos de encuesta
@@ -85,6 +139,7 @@ Con este objetivo entonces se realizan las siguientes transformaciones:
 
 
 ```{r message=FALSE, warning=FALSE}
+# Tratamiento de datos de encuestas
 dh <- read_excel(path = "./Datos_LP.xlsx", n_max = 3, col_names = FALSE) 
 dh <- dh %>% transpose() %>% fill(V1, V2, V3, .direction = 'down')
 colnames(dh) <-c('SECCIONES', 'REFERENCIA', 'PREGUNTA')
@@ -92,19 +147,30 @@ dh <- dh[-1:-3,]
 dh <- dh %>% group_by(PREGUNTA) %>% mutate(ID = row_number(PREGUNTA))
 dh$ID <- paste(dh$REFERENCIA, dh$ID, sep = "_")
 dh$ID <- paste("id", dh$ID, sep = "_")
-dh
+#dh
 ```
 
+  En esta sección, se observa que la cantidad de preguntas asociadas a cada tema varía considerablemente. Por ejemplo, se encuentran solo 2 preguntas relacionadas con el hacinamiento, en contraste con las 26 preguntas dirigidas al tema de materiales. Esta disparidad en la distribución de las preguntas podría influir en los resultados del análisis, ya que la representatividad de los temas tratados podría no estar equilibrada.
+
+  Es recomendable considerar este desequilibrio al interpretar las respuestas, ya que un mayor número de preguntas puede generar una mayor influencia en la percepción sobre ciertos temas.
+
 ```{r}
+# Analisis de preguntas por sección
 dh %>% group_by(SECCIONES) %>% summarize('TOTAL PREGUNTAS' = n())
 ```
+
+
 ```{r}
-dh %>% group_by(PREGUNTA) %>% summarize('TOTAL OPCIONES DE RESPUESTAS' = n())
+# Analisis de cantidad preguntas con más de 1 opción de respuesta
+dh %>% 
+  group_by(PREGUNTA) %>% 
+  summarize('TOTAL OPCIONES DE RESPUESTAS' = n()) %>%
+  filter(`TOTAL OPCIONES DE RESPUESTAS` > 1)
 ```
 
   Utilizaremos esta información parcial para agrupar respuestas en la base de datos original.
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r include=FALSE}
 cn2 <- dh %>% transpose()
 cn2 <- cn2[4,]
 cn2
@@ -114,28 +180,9 @@ col_names <- c(cn1, cn2) %>% as.character()
 #col_names
 ```
 
-
 ```{r}
 df <- read_excel(path = "./Datos_LP.xlsx", skip = 3, col_names = col_names) %>% data.frame()
-
 df %>% head(10)
-```
-
-```{r}
-dh
-
-nn <- dh %>%
-  summarise(across(.fns = paste, collapse = "_")) %>%
-  unlist() %>% unname()
-
-nn
-```
-
-
-## Analisis de barrios
-
-```{r}
-df %>% transpose()
 ```
 
 ## Seleccion de variables de estudio para descripciones graficas
@@ -153,9 +200,39 @@ df %>% transpose()
 
   Nos interesaria analizar la pregunta "10.6.2. ¿Hay plagas en su vivienda y en los alrededores de la misma? ¿Cuales?". Que tiene como respuestas las opciones Cucarachas, Mosquitos y o Ratas. Para ver si existe una relacion con la cantidad de personas que duermen en una misma habitacion. Esta informaicion se obiene de la pregunta "3.2. ¿Cuál es el número MÁXIMO de personas que duermen en estos dormitorios usualmente? (Opciones: 1 a más de 10)"
 
+```{r}
+df_cuca <- df %>%
+  select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
+
+df_cuca
+```
+
+
+```{r echo=TRUE, message=FALSE}
+df_cuca %>% 
+  group_by(BARRIO, id_10.6.2_1) %>% 
+  summarise("CUCARACHAS" = n()) %>%
+  arrange(desc(CUCARACHAS))
+```
+
+```{r echo=TRUE, message=FALSE}
+df_cuca %>% 
+  filter(BARRIO == "VILLA 20") %>%
+  group_by(BARRIO, id_10.6.2_1) %>% 
+  summarise("CUCARACHAS" = n())
+```
 
 ```{r}
-summary(df$...93)
+frec_num_cuca <- table(df$id_10.6.2_1)
+frec_num_NA <- sum(is.na(df$id_10.6.2_1))
+frec_num_resp <- sum(!is.na(df$ORDEN))
+tabla_prop_cuca <- cbind(frec_num_cuca, frec_num_resp)  
+```
+
+```{r}
+frec_num_cuca
+frec_num_NA
+frec_num_resp
 ```
 
 
