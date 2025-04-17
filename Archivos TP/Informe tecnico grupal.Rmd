@@ -8,38 +8,40 @@ date: "2025-04-11"
 
 ## Instalacion de librerias para informe preliminar
 
-Librerias necesarias para el informe.
+  Librerias necesarias para el informe.
 
-```{r message=FALSE, warning=FALSE}
-packages <- c("readxl", "dplyr", "tidyr")
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message=FALSE)
+packages <- c("readxl", "dplyr", "tidyr", "data.table")
 ```
 
-Instalacion de librerías.
+  Instalacion de librerías.
 
-```{r message=FALSE, warning=FALSE}
+```{r}
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
 ```
 
-Carga de librerías.
-```{r message=FALSE, warning=FALSE}
+  Carga de librerías.
+
+```{r}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 ```
 
-## Carga de datos
+## Tratamiento de datos de barrios
 
-Carga de datos sobre encuentas realizadas por barrios, provincia y region. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
+  Carga de datos sobre encuentas realizadas por barrios, provincia y region. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
 
 ```{r}
 bu <- read_excel(path = "./Barrios_Usuarios.xlsx") %>% data.frame()
 
-bu %>% head()
+bu %>% head(10)
 ```
 
-Realizamos un tratamiento de los datos de encuestas en barrios completando campos faltantes y eliminando filas con encuestas vacias. Se observa que los barrios se repiten, es decir que algunos tienen varias encuestas. Para facilitar el analisis posterior vamos a sumar estos valores.
+  Realizamos un tratamiento de los datos de encuestas en barrios completando campos faltantes y eliminando filas con encuestas vacias. 
 
 ```{r}
 bu <- bu %>% fill(REGIÓN, .direction = 'down')
@@ -47,34 +49,49 @@ bu <- bu %>% fill(PROVINCIA, .direction = 'down')
 bu <- bu %>% drop_na(ENCUESTAS)
 bu <- bu %>% fill(BARRIO, .direction = 'down')
 
-bu %>% head(10)
+bu %>% group_by(BARRIO) %>% filter(n() > 1)
+```
+  Se observa que los barrios se repiten, es decir que algunos tienen varias encuestas. Para facilitar el analisis posterior vamos a sumar estos valores.
+
+```{r message=FALSE}
+bu <- bu %>% group_by(REGIÓN, PROVINCIA, BARRIO) %>% summarise("TOTAL ENCUESTAS" = sum(ENCUESTAS))
 ```
 
+## Analisis de barrios
+
+  En este informe analizaremos los resultado de encuestas realizados sobre los barrios detallados debajo, en distintas regiones en Argentina. Se muestra además la cantidad total de encuestas realizadas sobre cada barrio.
 
 ```{r}
-#aggregate(x = bu$ENCUESTAS, by = list(ENCUESTAS = bu$ENCUESTAS, FUN = "sum")
+bu %>% group_by(REGIÓN) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
 ```
 
-#### Muestra general de leyenda
 ```{r}
-bu
+bu %>% group_by(PROVINCIA) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
 ```
 
+```{r}
+bu %>% group_by(BARRIO) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`))
+```
 
+## Tratamiento de datos de encuesta
 
-#### Carga de datos de estudio
+  Analizaremos las respuestas sobre las encuentas realizadas para los barrios, provincias y regiones indicadas. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
+
 ```{r include=FALSE}
 df <- read_excel(path = "./Datos_LP.xlsx") %>% data.frame()
+
+df %>% head(10)
 ```
-#### Limpieza de datos
+```{r}
+colnames(df) %>% head()
+
+df
+```
+
+## Analisis de barrios
 
 ```{r}
-#colnames(datos)
-```
-
-#### Muestra general de datos
-```{r}
-df %>% head()
+df %>% transpose()
 ```
 
 ## Seleccion de variables de estudio para descripciones graficas
