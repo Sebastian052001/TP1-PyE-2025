@@ -12,7 +12,7 @@ date: "2025-04-11"
 
 ```{r}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message=FALSE)
-packages <- c("readxl", "dplyr", "tidyr", "data.table")
+packages <- c("readxl", "dplyr", "tidyr", "data.table", "stringr")
 ```
 
   Instalacion de librerías.
@@ -26,8 +26,7 @@ if (any(installed_packages == FALSE)) {
 
   Carga de librerías.
 
-```{r}
-# Packages loading
+```{r message=FALSE, warning=FALSE}
 invisible(lapply(packages, library, character.only = TRUE))
 ```
 
@@ -75,18 +74,63 @@ bu %>% group_by(BARRIO) %>% summarise("TOTAL ENCUESTAS" = sum(`TOTAL ENCUESTAS`)
 
 ## Tratamiento de datos de encuesta
 
-  Analizaremos las respuestas sobre las encuentas realizadas para los barrios, provincias y regiones indicadas. Vemos que los datos requiren un tratamiento previo al analisis por campos vacíos.
+  Se analizarán las respuestas sobre las encuentas realizadas que han sido documentadas en el archivo 'Datos_LP'. Esta información originalmente no posee las características de datos ordenados según las librerías que se pretender utilizar.  Para ello, se tratarán los datos para lograr una estructura 'tidy', esto es:
+  - Cada columna será una variable, es decir, una pregunta de la encuesta.
+  - Cada fila un resultado de encuesta dado por grupo familia.
+  - Cada valor será el la respuesta dada a una pregunta por el grupo familiar.
 
-```{r include=FALSE}
-df <- read_excel(path = "./Datos_LP.xlsx") %>% data.frame()
+Con este objetivo entonces se realizan las siguientes transformaciones:
+  - Unificacición de los títulos multinivel (Sección, referencia y pregunta) en el archivo.
+  - Identificación parcial de cada pregunta y su respuesta asociada (para una posterior verificación de consistencia en los datos)
+
+
+```{r message=FALSE, warning=FALSE}
+dh <- read_excel(path = "./Datos_LP.xlsx", n_max = 3, col_names = FALSE) 
+dh <- dh %>% transpose() %>% fill(V1, V2, V3, .direction = 'down')
+colnames(dh) <-c('SECCIONES', 'REFERENCIA', 'PREGUNTA')
+dh <- dh[-1:-3,]
+dh <- dh %>% group_by(PREGUNTA) %>% mutate(ID = row_number(PREGUNTA))
+dh$ID <- paste(dh$REFERENCIA, dh$ID, sep = "_")
+dh$ID <- paste("id", dh$ID, sep = "_")
+dh
+```
+
+```{r}
+dh %>% group_by(SECCIONES) %>% summarize('TOTAL PREGUNTAS' = n())
+```
+```{r}
+dh %>% group_by(PREGUNTA) %>% summarize('TOTAL OPCIONES DE RESPUESTAS' = n())
+```
+
+  Utilizaremos esta información parcial para agrupar respuestas en la base de datos original.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+cn2 <- dh %>% transpose()
+cn2 <- cn2[4,]
+cn2
+cn1 <- c('ORDEN', 'PROVINCIA', 'BARRIO')
+col_names <- c(cn1, cn2) %>% as.character()
+#col_names[duplicated(col_names)]
+#col_names
+```
+
+
+```{r}
+df <- read_excel(path = "./Datos_LP.xlsx", skip = 3, col_names = col_names) %>% data.frame()
 
 df %>% head(10)
 ```
-```{r}
-colnames(df) %>% head()
 
-df
+```{r}
+dh
+
+nn <- dh %>%
+  summarise(across(.fns = paste, collapse = "_")) %>%
+  unlist() %>% unname()
+
+nn
 ```
+
 
 ## Analisis de barrios
 
