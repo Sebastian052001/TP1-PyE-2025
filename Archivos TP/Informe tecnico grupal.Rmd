@@ -265,13 +265,26 @@ join_barrios
 
 ### Variable categórica medida en escala nominal
 
- Se comenzará el analisis estudiando la situación en la que los habitantes se encuentran en sus domicilios. Esto ayudará a poner en contexto e intentar entender sobre responsabilidades por problemas en los domicilios.
+  Se comenzará el analisis estudiando la situación en la que los habitantes se encuentran en sus domicilios. Esto ayudará a poner en contexto e intentar entender sobre responsabilidades por problemas en los domicilios.
  
  - Sección: 4 Propiedad
  - Referencia: 4.3
- - Pregunta: El lugar que habitan actualmente es:
- - Respuestas: Prestado / lo alquilan / es propio sin títulos formales / propio con algún comprobante de tenencia / es ocupado / otro (en este caso especificar)
+ - Pregunta: "El lugar que habitan actualmente es:"
+ - Respuestas:
+  * "Alquilado"
+  * "Ocupado/Tomado"                          
+  * "Otro"
+  * "Prestado"
+  * "Propio con algún comprobante de tenencia"
+  * "Propio sin títulos"  
  
+```{r}
+# Muestra Seccion y pregunta del dataframe de encuestas
+dh %>% filter(grepl("4.3", REFERENCIA))
+
+# Muestra exploratoria de respuestas del dataframe de encuestas
+df %>% group_by(id_4.3_1) %>% summarise("TOTAL" = n())
+```
 
 ```{r}
 # Selección de datos
@@ -289,69 +302,134 @@ df_propiedad
  
 ###  Variable categórica medida en escala ordinal
 
-  COMPLETAR
+ COMPLETAR POR QUÉ ELEGIMOS ESTO.
+ 
+ - Sección: 11 Ambiente
+ - Referencia: 11.9.2
+ - Pregunta: "¿Con qué frecuencia el Municipio recolecta los residuos en sus inmediaciones?"
+ - Respuestas: 
+  "Al menos 5 veces a la semana"
+  "Entre 2 y 4 veces a la semana"
+  "No hay servicio de recolección municipal"
+  "Una vez a la semana"    
+ 
+```{r}
+# Muestra Seccion y pregunta del dataframe de encuestas
+dh %>% filter(grepl("11.9.2", REFERENCIA))
+
+# Muestra exploratoria de respuestas del dataframe de encuestas
+df %>% group_by(id_11.9.2_1) %>% summarise("TOTAL" = n())
+```
+
+```{r}
+# Selección de datos
+df_recolección <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_11.9.2_1)
+
+# Tratamiendo de datos
+df_recolección <- df_recolección %>% 
+  group_by(PROVINCIA, BARRIO, id_11.9.2_1) %>%
+  tally() %>%
+  pivot_wider(names_from = id_11.9.2_1, values_from = n)
+
+# Muestra de datos
+df_recolección
+```
 
 ### Variable categórica de respuesta múltiple
 
-  Se propone analizar la presencia de plagas en la vivienda y sus alrededores. Para ello, se toma como variable la respuesta a la pregunta "10.6.2. ¿Hay plagas en su vivienda y en los alrededores de la misma? ¿Cuáles?", cuyas opciones incluyen Cucarachas, Mosquitos y/o Ratas. 
+  Se propone analizar la presencia de plagas en la vivienda y sus alrededores. COMPETAR CON MOTIVOS.
+  
+ - Sección: 10 Servicios barriales
+ - Referencia: 10.6.2
+ - Pregunta: "¿Cuáles plagas?"
+ - Respuestas: 
+  "Cucarachas"
+  "Mosquitos"
+  "Ratas"
 
 ```{r}
-df_cuca <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
-#df_cuca
-```
+# Muestra Seccion y pregunta del dataframe de encuestas
+dh %>% filter(grepl("10.6.2", REFERENCIA))
 
-
-```{r echo=TRUE, message=FALSE}
-df_cuca %>% 
-  group_by(BARRIO, id_10.6.2_1) %>% 
-  summarise("CUCARACHAS" = n()) %>%
-  filter(!is.na(id_10.6.2_1)) %>%
-  arrange(desc(CUCARACHAS)) %>%
-  select(BARRIO, CUCARACHAS)
-```
-
-```{r echo=TRUE, message=FALSE}
-df_cuca %>% 
-  filter(BARRIO == "VILLA 20") %>%
-  group_by(BARRIO, id_10.6.2_1) %>% 
-  summarise("CUCARACHAS" = n())
+# Muestra exploratoria de respuestas del dataframe de encuestas
+df %>% group_by(id_10.6.2_1, id_10.6.2_2, id_10.6.2_3) %>% summarise("TOTAL" = n())
 ```
 
 ```{r}
-frec_num_cuca <- table(df$id_10.6.2_1)
-frec_num_NA <- sum(is.na(df$id_10.6.2_1))
-frec_num_resp <- sum(!is.na(df$ORDEN))
-tabla_prop_cuca <- cbind(frec_num_cuca, frec_num_resp)  
-```
+# Selección de datos
+df_plagas <- df %>% 
+  select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
 
-```{r}
-frec_num_cuca
-frec_num_NA
-frec_num_resp
+# Muestra de datos
+df_plagas
 ```
-
 
 ### Variable cuantitativa discreta
 
+  COMPETAR CON MOTIVOS.
+  
+ - Sección: 
+ - Referencia: 
+ - Pregunta: 
+ - Respuestas: 
 
 ```{r}
-df_inte %>%
-  filter(BARRIO == "11 de Enero") %>%
-  select(id_1.4_1) %>%
-  summary()
+# Muestra Seccion y pregunta del dataframe de encuestas
+dh %>% filter(grepl("XXXXX", REFERENCIA))
+
+# Muestra exploratoria de respuestas del dataframe de encuestas
+df %>% group_by(XXXXX, XXXXX, XXXXX) %>% summarise("TOTAL" = n())
 ```
+
+```{r}
+# Selección de datos
+df_aux <- df %>% 
+  select(ORDEN, PROVINCIA, BARRIO, XXXXX)
+
+# Tratamiendo de datos
+df_aux <- df_aux %>% 
+  group_by(PROVINCIA, BARRIO, XXXXX)
+
+# Muestra de datos
+df_aux
+```
+
 
 ### Variable cuantitativa continua
 
-  COMPLETAR CON 4.4.1
+  COMPETAR CON MOTIVOS.
+  
+ - Sección: 4 Propiedad
+ - Referencia: 4.4.2
+ - Pregunta: "¿Cuál es el costo actual del mismo?"
+ - Respuestas: 
   
 ```{r}
-df_inte <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_1.4_1)
+# Muestra Seccion y pregunta del dataframe de encuestas
+dh %>% filter(grepl("4.4.2", REFERENCIA))
+
+# Muestra exploratoria de respuestas del dataframe de encuestas
+df %>% group_by(id_4.3_1, id_4.4.2_1) %>% summarise("TOTAL" = n())
 ```
-  
+
+```{r}
+# Selección de datos
+df_costo<- df %>% 
+  select(ORDEN, PROVINCIA, BARRIO, id_4.3_1, id_4.4.2_1)
+
+# Muestra de datos
+df_costo
+```
+```{r}
+# Muestra de medidas características sobre la distrubución de encuestas en barrios según filtro anterior
+df_costo %>% 
+  filter(grepl("Alquilado", id_4.3_1)) %>%
+  select(id_4.4.2_1) %>%
+  summary()
+```
 
 
-## Medidas de posicion seleccionadas
+### Medidas de posicion seleccionadas
 
   COMPLETAR CON medida de posición que mejor acompañe a los recursos gráficos
 anteriormente mencionados
@@ -375,3 +453,8 @@ anteriormente mencionados
 ### Dos variables cuantitativas
 
   COMPLETAR
+ 
+ - Sección: 
+ - Referencia:
+ - Pregunta: 
+ - Respuestas:
