@@ -20,26 +20,31 @@ if (any(installed_packages == FALSE)) {
 
 invisible(lapply(packages, library, character.only = TRUE))
 ```
-## Objetivos del documento (no va en entrega final, es para orientar)
-* [ ] Contarle a Rubén cómo se planifica realizar el análisis que se le va a mostrar a Ana, justificando decisiones de manera técnica.
-* [ ] Incluir una breve descripción del problema.
-* [ ] Incluir una breve descripcion de la poblacion objeto de estudio.
-* [ ] Indicar que variables se van a incluir en el análisis y porqué.
-* [ ] Indicar que recursos gráficos y numéricos se van a utilizar para cada variable.
-* [ ] Debe quedar claro por qué el análisis descriptivo sobre este recorte es fundamental para Ana.
 
 # Introducción
+
 El presente documento expone un plan de análisis de los datos recolectados mediante un [formulario en barrios populares del país](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view). El relevamiento abordó *aspectos habitacionales y condiciones de vida de la población encuestada*, con el objetivo de **construir un diagnóstico técnico que permita identificar problemáticas clave**.
 
-El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado. 
+El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado.
+
+\bigskip
 
 # Objetivos
-El análisis se orienta a la construcción de un **diagnóstico descriptivo que visibiliza la calidad de vida en los barrios relevados, con especial énfasis en las carencias habitacionales***.
 
-Las variables seleccionadas fueron definidas en función  de su relevancia analítica y potencial para *identificar necesidades urgentes, permitiendo detectar áreas críticas que requieren atencion prioritaria y aportar insumos útiles para la toma de decisiones*.
+El análisis se orienta a la construcción de un **diagnóstico descriptivo que visibiliza la calidad de vida en los barrios relevados, con especial énfasis en las carencias habitacionales**\*.
+
+Las variables seleccionadas fueron definidas en función de su relevancia analítica y potencial para *identificar necesidades urgentes, permitiendo detectar áreas críticas que requieren atencion prioritaria y aportar insumos útiles para la toma de decisiones*.
+
+\bigskip
+
+# Población en estudio
+
+[Completar]
+
+\bigskip
 
 # Plan de Análisis
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
 ```{r, echo=FALSE}
 # Muestra exploratoria de datos
 bu <- read_excel(path = "./Barrios_Usuarios.xlsx") %>% data.frame()
@@ -71,16 +76,183 @@ col_names <- c(cn1, cn2) %>% as.character()
 
 df <- read_excel(path = "./Datos_LP.xlsx", skip = 3, col_names = col_names) %>% data.frame()
 ```
-## Acceso a Servicios Básicos
-Comparar tipo de conexión a la red eléctrica con si tuvo perdida de electrodomesticos en el ultimo año
-El 57% tiene conexion informal?
-## Infraestructura y Costo de la Vivienda
-9.10, 1.9 y 4.4.2
 
+Se analizará la información obtenida del Relevamiento de Condiciones Habitacionales, en particular sobre algunos puntos de interés, con el objetivo de poder generar impacto en la sociedad sobre las condiciones en las que se encontraban las familias en distintas villas en el año 2022. Se busca generar conciencia social y, más importante aún, posibilitar la mejora de las condiciones de vida. Eventualmente, dado el soporte del Observatorio Villero, esta información será nuevamente relevada, y se podrá determinar si las acciones tomadas mejoraron las condiciones de vida generales de las familias involucradas.
 
+Dado a que la información recolectada puede no ser completamente correcta desde un punto de vista técnico estadístico, las conclusiones obtenidas se complementarán con los contenidos teóricos provistos por la cátedra de Probabilidad y Estadística de la Facultad de Ciencias Exactas, Ingeniería y Agrimensura. *[NOTA (SOF): creo que tenemos que pretender que esto esta dirigido a Ruben en todo el informe, no? tipo no podemos nombrar la facu ni la catedra ni nada, no se si esta bien esto]*
 
-## Calidad de Vida
-Se va a analizar la relación entre la presencia de plagas en la vivienda (particularmente, cucarachas y ratas) con la cercanía de la misma a basurales.
+Con el fin de organizar los resultados y facilitar su interpretación, la estructura del análisis se divide en dos ejes principales: servicios básicos y calidad de vida. \*\*En cada variable analizada, se utilizará el siguiente esquema:
+
+1.  **Descripción general**: Breve explicación de qué mide la variable, y por qué es relevante en el contexto del análisis
+2.  **Enfoque analítico**: Que tipo de análisis se va a hacer (gráficos, tablas, datos numéricos, etc) y por qué este recurso es el más adecuado para interpretarla.
+3.  **Lectura preliminar**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida\*\*
+
+*[NOTA (SOF): lo que esta entre \*\* despues lo borramos? es para que lo vean ustedes y mantengamos la misma estructura en todo el plan de analisis. podriamos dejarlo tambien para explicar bien todo, pero hay que redactarlo un poco mejor.*
+
+*Aparte, como no hacemos graficos no se muy bien si incluir o no las tablas que fuimos haciendo en informe_tecnico_grupal. si las agregamos seria para justificar los datos de la lectura preliminar, pero no estoy segura de si hace falta. si creen que hay que agregarlo agreguenlo]*
+
+\bigskip
+
+## 1. Servicios básicos y condiciones económicas
+
+### 1.1. Cantidad de servicios básicos formales por vivienda
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta variable resume la cantidad de servicios básicos formales a los que accede cada vivienda, considerando si el encuestado indicó contar con agua potable con medidor (pregunta 5.1 del formulario), conexión a gas natural (pregunta 6.1) y/o conexión a la red eléctrica con medidor (pregunta 7.1).
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Al tratarse de una variable cuantitativa discreta, se utilizará un gráfico de bastones para representar la distribución de viviendas según la cantidad de servicios formales a los que acceden.
+
+\vspace{-5pt}
+
+Además, a modo de acompañar los datos, se agregará una tabla de distribución de frecuencias para poder visualizar en números los datos obtenidos, y hacer un análisis más riguroso de los resultados.
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+Solo el 3 % de los hogares relevados cuenta con acceso formal a los tres servicios básicos, mientras que un 47 % no accede formalmente a ninguno.
+
+\medskip
+
+### 1.2. Relación entre el tipo de conexión eléctrica de la vivienda con la pérdida de electrodomésticos
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta relación permite explorar si existe un vínculo entre la forma en que los hogares acceden a la electricidad (pregunta 7.1) y la ocurrencia de pérdidas materiales vinculadas al servicio, como la quema de electrodomésticos (pregunta 7.3). Esta combinación de variables revela las consecuencias cotidianas que enfrentan quienes dependen de conexiones inestables o irregulares.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Como estamos analizando la relación entre una variable cateǵorica politómica y otra categórica dicotómica, utilizaremos un gráfico de barras agrupadas para visualizar los datos.
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[completar]
+
+\medskip
+
+### 1.3. Tipo de tenencia
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta variable corresponde a la pregunta 4.3 del formulario e identifica el tipo de tenencia del hogar del encuestado, pudiendo ser esta propia con o sin comprobantes de tenencia, alquilada, prestada o tomada, entre otras. Esta a poner en contexto e intentar entender sobre responsabilidades por problemas en los domicilios.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Al ser una variable categórica nominal, utilizaremos un gráfico de barras horizontales ordenado por frecuencia para visualizar los datos.
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[completar]
+
+\medskip
+
+### 1.4. Costo del alquiler
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta variable releva el monto mensual que los hogares destinan al pago del alquiler, expresado en pesos argentinos. Solo es aplicable a quienes declararon vivir en viviendas alquiladas, por lo que se analiza como una subpoblación dentro del total de encuestados.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Al ser una variable cuantitativa continua, utilizaremos... [NOTA (SOF): boxplot? o histograma? hay que ver segun los datos. aca deberíamos agregar eso de media/mediana/desvio estandar, la que quede mejor, hay que agregarlo en algun lado]
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[completar]
+
+\medskip
+
+## 2. Calidad de vida
+
+### 2.1. Presencia de plagas
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta variable corresponde a la pregunta X.X. del formulario, y recoge información sobre la presencia de distintos tipos de plagas en los hogares.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Al ser una variable categórica nominal de respuesta múltiple, para visualizar los datos utilizaremos... [completar]
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[Completar]
+
+\medskip
+
+### 2.2. Frecuencia de recoleccion de residuos
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta variable corresponde a la pregunta 11.9.2 del formulario, y releva la frecuencia con la que se realiza la recolección de residuos en el entorno de cada vivienda.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Dado que se trata de una variable categórica ordinal, para visualizar los datos se empleará un gráfico de barras horizontales que permita comparar fácilmente las distintas frecuencias reportadas. El orden de las categorías será de menor a mayor frecuencia, con el objetivo de facilitar la lectura.
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[completar]
+
+\medskip
+
+### 2.3. Relación entre presencia de plagas y cercanía a basurales
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+[Completar]
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+[Completar]
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[Completar]
+
 ```{r, echo=FALSE}
 df_cuca <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
@@ -93,23 +265,81 @@ tabla_plagas_basural <- cbind(frec_num_plagas_basural, frec_num_plagas)
 tabla_plagas_basural
 #TODO retocar los datos para que la tabla se vea bien
 ```
+
 Como puede observarse, de las 312 viviendas que se ven afectadas por la presencia de plagas, 223 (%71.47) se encuentran en las cercanías de un basural.
 
+\medskip
+
+### 2.4. Relación entre cantidad de personas que habitan la vivienda y problemas de humedad/filtraciones
+
+[NOTA (SOF): no se me ocurre otra categ vs cuanti buena estoy quemada
+
+nos falta esta sola para tener un grafico de cada tipo, la que habiamos hablado de cantidad de 5.3 vs 5.3.1 no va porque la 5.3 en el cuestionario nunca se pregunto]
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+[Completar]
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+[Completar]
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[Completar]
+
+\medskip
+
+### 2.5. Relación entre la cantidad de menores y la cantidad de teléfonos/tablets
+
+**Descripcion general**:
+
+\vspace{-5pt}
+
+Esta comparación busca explorar la relación entre la cantidad de niñas, niños y adolescentes en el hogar (pregunta y la cantidad de dispositivos tecnológicos disponibles en el mismo. De esta forma se puede visualizar el nivel de acceso que tiene la población infantil a los recursos digitales, que son hoy en día fundamentales para la educación y comunicación.
+
+**Enfoque analítico**:
+
+\vspace{-5pt}
+
+Se trata de dos variables cuantitativas discretas, por lo que se utilizará un diagrama de dispersión para representar su relación.
+
+[NOTA (SOF): Agregar coef de correlacion de Pearson quizas?]
+
+**Lectura preliminar**:
+
+\vspace{-5pt}
+
+[completar]
+
+\bigskip
+
+# Conclusión preliminar
+
+[NOTA (SOF): esto que sigue no lo actualize con lo que fui subiendo pero ya hay minimo una variable de cada tipo]
+
 # Seleccion de variables de estudio para descripciones graficas
-* [ ] Variable categórica medida en escala nominal
-* [ ] Variable categórica medida en escala ordinal
-* [x] Variable categórica de respuesta múltiple
-  + 10.6.2 "¿Hay plagas en su vivienda y en los alrededores de la misma? ¿Cuales?"
-  + Usada junto a 11.7 "¿Hay basurales cerca de su vivienda?"
-* [x] Variable cuantitativa discreta
-  + 1.4 "¿Cuantos integrantes hay en su vivienda?"
-* [x] Variable cuantitativa continua
-  + 4.4.1 "En el caso que la vivienda sea alquilada, ¿tiene algún tipo de contrato firmado?"
+
+-   [ ] Variable categórica medida en escala nominal
+-   [ ] Variable categórica medida en escala ordinal
+-   [x] Variable categórica de respuesta múltiple
+    -   10.6.2 "¿Hay plagas en su vivienda y en los alrededores de la misma? ¿Cuales?"
+    -   Usada junto a 11.7 "¿Hay basurales cerca de su vivienda?"
+-   [x] Variable cuantitativa discreta
+    -   1.4 "¿Cuantos integrantes hay en su vivienda?"
+-   [x] Variable cuantitativa continua
+    -   4.4.1 "En el caso que la vivienda sea alquilada, ¿tiene algún tipo de contrato firmado?"
 
 # Descripciones graficas de la relación entre variables
-* [x] Dos variables categóricas
-  + 7.2 "¿Qué tipo de tendido eléctrico posee dentro de la vivienda?"
-  + 7.4 "¿Sufrió incendios dentro de su vivienda durante el último año debido a las condiciones de la instalación eléctrica?"
-* [ ] Una variable categórica y una variable cuantitativa
-* [ ] Dos variables cuantitativas
 
+-   [x] Dos variables categóricas
+    -   7.2 "¿Qué tipo de tendido eléctrico posee dentro de la vivienda?"
+    -   7.4 "¿Sufrió incendios dentro de su vivienda durante el último año debido a las condiciones de la instalación eléctrica?"
+-   [ ] Una variable categórica y una variable cuantitativa
+-   [ ] Dos variables cuantitativas

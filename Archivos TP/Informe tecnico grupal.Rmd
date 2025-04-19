@@ -567,6 +567,50 @@ df_tablets
 ```
 
 
-### Conclusion preliminar
 
-  COMPLETAR
+## CREANDO NUEVA VARIABLE 12.1.1.
+Utilizando los datos de las columnas 5.1, 6.1 y 7.1, construimos una nueva variable que indica la cantidad de servicios formales que tiene cada hogar.
+
+```{r}
+# Función auxiliar para recodificar respuestas
+recodificar_respuestas <- function(df, id, respuestas_positivas) {
+  variable <- df[[id]]
+  respuestas_unicas <- unique(variable)
+  # Recodificación según respuestas positivas
+  for (i in seq_along(respuestas_unicas)) {
+    variable[variable == respuestas_unicas[i]] <- 
+      ifelse(i %in% respuestas_positivas, "1", "0")
+  }
+  as.numeric(variable)
+}
+```
+
+```{r}
+# id_5.1_1: la segunda respuesta es "A través de una conexión con medidor 
+# a la red pública, se considera positiva. El resto, se considera negativa.
+res_5.1_1 <- recodificar_respuestas(df, "id_5.1_1", respuestas_positivas = 2)
+
+# id_6.1_1: las respuestas N/A se consideran negativas.
+res_6.1_1 <- df[["id_6.1_1"]]
+res_6.1_1 <- ifelse(is.na(res_6.1_1), 0, ifelse(res_6.1_1 == unique(res_6.1_1)[1], 1, 0))
+res_6.1_1 <- as.numeric(res_6.1_1)
+
+# id_7.1_1: La primera respuesta es "Conexión a través de un medidor a la
+# red eléctrica", se considera positiva. El resto, se considera negativa.
+res_7.1_1 <- recodificar_respuestas(df, "id_7.1_1", respuestas_positivas = 1)
+
+# Creacion de la variable 12.1_1: Suma total por fila de las anteriores
+total_encuestados <- 1222
+res_12.1_1 <- rowSums(cbind(res_5.1_1, res_6.1_1, res_7.1_1))
+```
+
+```{r}
+# TABLA RESUMEN ---
+total_12.1_1 <- table(res_12.1_1)
+frec_12.1_1 <- round(total_12.1_1 / total_encuestados, 2)
+cumsum_12.1_1 <- cumsum(frec_12.1_1)
+table_12.1_1 <- cbind(total_12.1_1, frec_12.1_1, cumsum_12.1_1)
+
+# Muestra de datos
+table_12.1_1
+```
