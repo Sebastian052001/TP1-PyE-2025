@@ -81,9 +81,9 @@ bu <- bu %>%
 
 ```{r}
 # Muesta de resultados
-bu_original
-bu_duplicados
-bu
+#bu_original
+#bu_duplicados
+#bu
 ```
 
 ## Analisis de encuestas
@@ -154,7 +154,7 @@ bu_barrio_filtrado <- bu %>%
 
 ```{r}
 # Muestra de resultados
-bu_barrio
+bu_barrio %>% head(10)
 
 # Muestra de medidas características sobre la distrubución de encuestas en barrios
 bu_barrio %>% select(`TOTAL ENCUESTAS`) %>% summary()
@@ -231,9 +231,9 @@ df_original <- df
 
 ```{r}
 # Muestra de datos
-df_original
-dh_secciones
-dh_multiples
+#df_original
+#dh_secciones
+#dh_multiples
 ```
 
 ### Verificación de suma de encuestas en barrios
@@ -250,7 +250,7 @@ df_barrio <- df_original %>%
 
 ```{r}
 # Muestra de resultados
-join_barrios
+full_join(x = df_barrio, y = bu_barrio, by = "BARRIO")
 ```
 
 ## Seleccion de variables de estudio para descripciones graficas
@@ -369,7 +369,7 @@ df_plagas <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
 
 # Muestra de datos
-df_plagas
+#df_plagas
 ```
 
 ## Variable cuantitativa discreta
@@ -431,7 +431,7 @@ df_costo<- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_4.3_1, id_4.4.2_1)
 
 # Muestra de datos
-df_costo
+#df_costo
 ```
 
 ```{r}
@@ -483,7 +483,7 @@ df_incendios <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_7.2_1, id_7.4_1)
 
 # Muestra de datos
-df_incendios
+#df_incendios
 ```
 
 ### Una variable categórica y una variable cuantitativa
@@ -523,7 +523,7 @@ df_agua <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_5.3_1, id_3.2_1)
 
 # Muestra de datos
-df_agua
+#df_agua
 ```
 
 ### Dos variables cuantitativas
@@ -563,7 +563,7 @@ df_tablets <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_1.9_1, id_8.4_1)
 
 # Muestra de datos
-df_tablets
+#df_tablets
 ```
 
 

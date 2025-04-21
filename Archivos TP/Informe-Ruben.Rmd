@@ -28,6 +28,8 @@ invisible(lapply(packages, library, character.only = TRUE))
 
   El presente documento expone un plan de análisis de los datos recolectados mediante un [formulario en barrios populares del país](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view). El relevamiento abordó *aspectos habitacionales y condiciones de vida de la población encuestada*, con el objetivo de **construir un diagnóstico técnico que permita identificar problemáticas clave**.
 
+ Debido a esto es que la muestra se considera no probabilistica, es decir que solo nos referiremos a los barrios relevados.
+ 
   El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado.
 
 \bigskip
