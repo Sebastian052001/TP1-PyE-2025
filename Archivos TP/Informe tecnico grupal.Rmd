@@ -1,8 +1,8 @@
 ---
 title: "Informe Tecnico"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 date: "2025-04-11"
 ---
 
@@ -12,7 +12,7 @@ date: "2025-04-11"
   
   Los bloques de código iniciales permitirán instalar y cargar las librerías necesarias para la elaboración del informe. Estas librerías permiten la manipulación, visualización y análisis estadístico de los datos en el entorno de trabajo RStudio. El código contempla tanto la instalación (en caso de que no estén previamente disponibles) como la carga de los paquetes requeridos para garantizar la reproducibilidad del análisis.
   
-```{r, setup}
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE}
 # setup
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message=FALSE)
 ```

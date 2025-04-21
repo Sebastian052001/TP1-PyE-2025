@@ -7,15 +7,12 @@ date: "23 de Abril de 2025"
 urlcolor: blue
 ---
 
-Los bloques de código iniciales permitirán instalar y cargar las librerías necesarias para la garantizar la reproducibilidad del análisis.
-
 ```{r setup, include=FALSE}
 # setup
-knitr::opts_chunk$set(
-	message = FALSE,
-	warning = FALSE,
-	include = FALSE
-)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, include = FALSE)
+```
+
+```{r include=FALSE}
 # Lista de librerías
 packages <- c("readxl", "dplyr", "tidyr", "data.table", "stringr", "ggplot2")
 
@@ -29,30 +26,31 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 # Introducción
 
-El presente documento expone un plan de análisis de los datos recolectados mediante un [formulario en barrios populares del país](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view). El relevamiento abordó *aspectos habitacionales y condiciones de vida de la población encuestada*, con el objetivo de **construir un diagnóstico técnico que permita identificar problemáticas clave**.
+  El presente documento expone un plan de análisis de los datos recolectados mediante un [formulario en barrios populares del país](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view). El relevamiento abordó *aspectos habitacionales y condiciones de vida de la población encuestada*, con el objetivo de **construir un diagnóstico técnico que permita identificar problemáticas clave**.
 
-El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado.
+  El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado.
 
 \bigskip
 
 # Objetivos
 
-El análisis se orienta a la construcción de un **diagnóstico descriptivo que visibiliza la calidad de vida en los barrios relevados, con especial énfasis en las carencias habitacionales**\*.
+  El análisis se orienta a la construcción de un **diagnóstico descriptivo que visibiliza la calidad de vida en los barrios relevados, con especial énfasis en las carencias habitacionales**\*.
 
-Las variables seleccionadas fueron definidas en función de su relevancia analítica y potencial para *identificar necesidades urgentes, permitiendo detectar áreas críticas que requieren atencion prioritaria y aportar insumos útiles para la toma de decisiones*.
+  Las variables seleccionadas fueron definidas en función de su relevancia analítica y potencial para *identificar necesidades urgentes, permitiendo detectar áreas críticas que requieren atencion prioritaria y aportar insumos útiles para la toma de decisiones*.
 
 \bigskip
 
 # Población en estudio
 
-Se analizará la información obtenida del Relevamiento de Condiciones Habitacionales, en particular sobre algunos puntos de interés, con el objetivo de poder generar impacto en la sociedad sobre las condiciones en las que se encontraban las familias en distintas villas en el año 2022. Se busca generar conciencia social y, más importante aún, posibilitar la mejora de las condiciones de vida. Eventualmente, dado el soporte del Observatorio Villero, esta información será nuevamente relevada, y se podrá determinar si las acciones tomadas mejoraron las condiciones de vida generales de las familias involucradas.
+  Se analizará la información obtenida del Relevamiento de Condiciones Habitacionales, en particular sobre algunos puntos de interés, con el objetivo de poder generar impacto en la sociedad sobre las condiciones en las que se encontraban las familias en distintas villas en el año 2022. Se busca generar conciencia social y, más importante aún, posibilitar la mejora de las condiciones de vida. Eventualmente, dado el soporte del Observatorio Villero, esta información será nuevamente relevada, y se podrá determinar si las acciones tomadas mejoraron las condiciones de vida generales de las familias involucradas.
 
-Las encuentas realizadas que han sido documentadas en el archivo "Datos_LP". Se reutilizarán técnicas de manipulación de datos previamente desarrolladas y documentadas en el repositorio del equipo de trabajo. Esto permitirá agilizar el procesamiento y asegurar la consistencia metodológica con informes anteriores.
+  Las encuentas realizadas que han sido documentadas en el archivo "Datos_LP". Se reutilizarán técnicas de manipulación de datos previamente desarrolladas y documentadas en el repositorio del equipo de trabajo. Esto permitirá agilizar el procesamiento y asegurar la consistencia metodológica con informes anteriores.
 
-```         
-- dh: Dataframe de respuestas a todas las preguntas de la encuesta, cada fila es una respuesta y las columnas tienen la pregunta y sección asociada.
-- df: Dataframe de encuestas, cada fila es una encuesta y cada columna una variable de la encuesta como por ejemplo el barrio, provincia y respuestas dadas.
+```{r}
+ # dh: Dataframe de respuestas a todas las preguntas de la encuesta, cada fila es una respuesta y las columnas tienen la pregunta y sección asociada.
+ # df: Dataframe de encuestas, cada fila es una encuesta y cada columna una variable de la encuesta como por ejemplo el barrio, provincia y respuestas dadas.
 ```
+   
 
 ```{r}
 # Tratamiento de columnas/variables de datos de encuestas por encabezados multiple
@@ -80,7 +78,7 @@ df$BARRIO = str_to_upper(df$BARRIO)
 df$PROVINCIA = str_to_upper(df$PROVINCIA)
 ```
 
-```{r}
+```{r echo=FALSE}
 # Cantidad de preguntas por sección
 dh_secciones <- dh %>% 
   group_by(SECCIONES) %>% 
@@ -95,10 +93,9 @@ ggplot(dh_secciones) +
   labs(x = "Sección", y = "Número de Preguntas", title = "Cantidad de Preguntas por Sección") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+  Se muestra la cantidad de preguntas realizadas de cada sección.
 
-Se muestra la cantidad de preguntas realizadas de cada sección.
-
-```{r}
+```{r echo=FALSE}
 # Cantidad de encuestas por barrio
 df_barrios <- df %>% 
   group_by(BARRIO) %>% 
@@ -114,9 +111,10 @@ ggplot(df_barrios) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Se muestra la cantidad de encuestas realizadas en cada barrio. Se observa que algunos barrios tienen más de 100 encuestas realizadas mientras que otros tienen menos de 30. Prestaremos atención a esto ya que podría significar que existe sesgo en los datos, que no se pueden corregir con limpieza de los mismos.
+  Se muestra la cantidad de encuestas realizadas en cada barrio. Se observa que algunos barrios tienen más de 100 encuestas realizadas mientras que otros tienen menos de 30. Prestaremos atención a esto ya que podría significar que existe sesgo en los datos, que no se pueden corregir con limpieza de los mismos.
 
-```{r}
+
+```{r echo=FALSE}
 # Cantidad de encuestas por provincia
 df_provincia <- df %>% 
   group_by(PROVINCIA) %>% 
@@ -132,21 +130,20 @@ ggplot(df_provincia) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Se muestra la cantidad de encuestas realizadas en cada provincia. Nuevamente se observa que algunas provincias tienen más de 200 encuestas realizadas mientras que otras tienen 30 o menos. Prestaremos atención a esto ya que podría significar que existe sesgo en los datos, que no se pueden corregir con limpieza de los mismos.
+  Se muestra la cantidad de encuestas realizadas en cada provincia. Nuevamente se observa que algunas provincias tienen más de 200 encuestas realizadas mientras que otras tienen 30 o menos. Prestaremos atención a esto ya que podría significar que existe sesgo en los datos, que no se pueden corregir con limpieza de los mismos.
 
 \bigskip
 
 # Plan de Análisis
 
-Con el fin de organizar los resultados y facilitar su interpretación, la estructura del análisis se divide en dos ejes principales: servicios básicos y calidad de vida. \*\*En cada variable analizada, se utilizará el siguiente esquema:
+  Con el fin de organizar los resultados y facilitar su interpretación, la estructura del análisis se divide en dos ejes principales: servicios básicos y calidad de vida. \*\*En cada variable analizada, se utilizará el siguiente esquema:
 
-```         
-1.  **Descripción general**: Breve explicación de qué mide la variable, y por qué es relevante en el contexto del análisis
-2.  **Enfoque analítico**: Que tipo de análisis se va a hacer (gráficos, tablas, datos numéricos, etc) y por qué este recurso es el más adecuado para interpretarla.
-3.  **Lectura preliminar**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida\*\*
-```
+    1.  **Descripción general**: Breve explicación de qué mide la variable, y por qué es relevante en el contexto del análisis
+    2.  **Enfoque analítico**: Que tipo de análisis se va a hacer (gráficos, tablas, datos numéricos, etc) y por qué este recurso es el más adecuado para interpretarla.
+    3.  **Lectura preliminar**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida\*\*
 
-*[NOTA (SOF): lo que esta entre \*\* despues lo borramos? es para que lo vean ustedes y mantengamos la misma estructura en todo el plan de analisis. podriamos dejarlo tambien para explicar bien todo, pero hay que redactarlo un poco mejor. MM: Por mi lo dejamos.*
+*[NOTA (SOF): lo que esta entre \*\* despues lo borramos? es para que lo vean ustedes y mantengamos la misma estructura en todo el plan de analisis. podriamos dejarlo tambien para explicar bien todo, pero hay que redactarlo un poco mejor.
+MM: Por mi lo dejamos.*
 
 *Aparte, como no hacemos graficos no se muy bien si incluir o no las tablas que fuimos haciendo en informe_tecnico_grupal. si las agregamos seria para justificar los datos de la lectura preliminar, pero no estoy segura de si hace falta. si creen que hay que agregarlo agreguenlo]*
 
@@ -160,23 +157,23 @@ Con el fin de organizar los resultados y facilitar su interpretación, la estruc
 
 \vspace{-5pt}
 
-Esta variable resume la cantidad de servicios básicos formales a los que accede cada vivienda, considerando si el encuestado indicó contar con agua potable con medidor (pregunta 5.1 del formulario), conexión a gas natural (pregunta 6.1) y/o conexión a la red eléctrica con medidor (pregunta 7.1).
+  Esta variable resume la cantidad de servicios básicos formales a los que accede cada vivienda, considerando si el encuestado indicó contar con agua potable con medidor (pregunta 5.1 del formulario), conexión a gas natural (pregunta 6.1) y/o conexión a la red eléctrica con medidor (pregunta 7.1).
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Al tratarse de una variable cuantitativa discreta, se utilizará un gráfico de bastones para representar la distribución de viviendas según la cantidad de servicios formales a los que acceden.
+  Al tratarse de una variable cuantitativa discreta, se utilizará un gráfico de bastones para representar la distribución de viviendas según la cantidad de servicios formales a los que acceden.
 
 \vspace{-5pt}
 
-Además, a modo de acompañar los datos, se agregará una tabla de distribución de frecuencias para poder visualizar en números los datos obtenidos, y hacer un análisis más riguroso de los resultados.
+  Además, a modo de acompañar los datos, se agregará una tabla de distribución de frecuencias para poder visualizar en números los datos obtenidos, y hacer un análisis más riguroso de los resultados.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
 
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -200,13 +197,11 @@ df %>% group_by(id_7.1_1) %>% summarise("TOTAL" = n())
 df_servicios <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_5.1_1, id_6.1_1, id_6.1_2, id_6.1_3, id_6.1_4, id_6.1_5, id_7.1_1)
 # Tratamiento de datos
 df_servicios <- df_servicios %>% 
-  mutate("poseeAgua"=ifelse(grepl("con medidor", id_5.1_1), 1, 0)) %>%
-  mutate("poseeGas"=ifelse(grepl("Gas natural", id_6.1_1), 1, 0)) %>%
-  mutate("poseeElectricidad"=ifelse(grepl("un medidor a la red", id_7.1_1), 1, 0))
+  mutate("poseeAgua"=ifelse(grepl("A través de una conexión", id_5.1_1), 1, 0)) %>%
+  mutate("poseeGas"=ifelse(grepl("Gas natural (red de gas)", id_6.1_1), 1, 0)) %>%
+  mutate("poseeElectricidad"=ifelse(grepl("Conexión a través de un medidor", id_7.1_1), 1, 0))
 df_servicios$poseeServicios = df_servicios$poseeAgua + df_servicios$poseeGas + df_servicios$poseeElectricidad
 df_servicios <- df_servicios %>% select(ORDEN, PROVINCIA, BARRIO, poseeServicios)
-df_servicios_tabla <- df_servicios %>% group_by(poseeServicios) %>% summarise("TOTAL" = n())
-df_servicios_tabla
 ```
 
 ```{r}
@@ -217,8 +212,8 @@ df_servicios%>%
   summarise("FAMILIAS SIN SERVICIOS" = n()) %>%
   arrange(desc(`FAMILIAS SIN SERVICIOS`))
 ```
-
-Solo el 3 % de los hogares relevados cuenta con acceso formal a los tres servicios básicos, mientras que un 47 % no accede formalmente a ninguno.
+ 
+  Solo el 3 % de los hogares relevados cuenta con acceso formal a los tres servicios básicos, mientras que un 47 % no accede formalmente a ninguno.
 
 \medskip
 
@@ -228,20 +223,20 @@ Solo el 3 % de los hogares relevados cuenta con acceso formal a los tres servi
 
 \vspace{-5pt}
 
-Esta relación permite explorar si existe un vínculo entre la forma en que los hogares acceden a la electricidad (pregunta 7.1) y la ocurrencia de pérdidas materiales vinculadas al servicio, como la quema de electrodomésticos (pregunta 7.3). Esta combinación de variables revela las consecuencias cotidianas que enfrentan quienes dependen de conexiones inestables o irregulares.
+  Esta relación permite explorar si existe un vínculo entre la forma en que los hogares acceden a la electricidad (pregunta 7.1) y la ocurrencia de pérdidas materiales vinculadas al servicio, como la quema de electrodomésticos (pregunta 7.3). Esta combinación de variables revela las consecuencias cotidianas que enfrentan quienes dependen de conexiones inestables o irregulares.
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Como estamos analizando la relación entre una variable cateǵorica politómica y otra categórica dicotómica, utilizaremos un gráfico de barras agrupadas para visualizar los datos.
+  Como estamos analizando la relación entre una variable cateǵorica politómica y otra categórica dicotómica, utilizaremos un gráfico de barras agrupadas para visualizar los datos.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
-
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+ 
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("7.1", REFERENCIA))
@@ -261,6 +256,7 @@ df %>% group_by(id_7.3_1) %>% summarise("TOTAL" = n())
 df_quema <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_7.1_1, id_7.3_1)
 ```
 
+
 \medskip
 
 ### 1.3. Tipo de tenencia
@@ -269,19 +265,19 @@ df_quema <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_7.1_1, id_7.3_1)
 
 \vspace{-5pt}
 
-Esta variable corresponde a la pregunta 4.3 del formulario e identifica el tipo de tenencia del hogar del encuestado, pudiendo ser esta propia con o sin comprobantes de tenencia, alquilada, prestada o tomada, entre otras. Esta a poner en contexto e intentar entender sobre responsabilidades por problemas en los domicilios.
+  Esta variable corresponde a la pregunta 4.3 del formulario e identifica el tipo de tenencia del hogar del encuestado, pudiendo ser esta propia con o sin comprobantes de tenencia, alquilada, prestada o tomada, entre otras. Esta a poner en contexto e intentar entender sobre responsabilidades por problemas en los domicilios.
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Al ser una variable categórica nominal, utilizaremos un gráfico de barras horizontales ordenado por frecuencia para visualizar los datos.
+  Al ser una variable categórica nominal, utilizaremos un gráfico de barras horizontales ordenado por frecuencia para visualizar los datos.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
 
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -303,7 +299,7 @@ df_propiedad <- df_propiedad %>%
 # Muestra de datos
 df_propiedad
 ```
-
+ 
 ```{r}
 # Muestra de medidas características
 df_propiedad[3:7] %>% 
@@ -330,7 +326,7 @@ Al ser una variable cuantitativa continua, utilizaremos boxplot o histograma dep
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
 
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -364,20 +360,19 @@ df_costo %>%
 
 \vspace{-5pt}
 
-Esta variable corresponde a la pregunta 10.6.2 del formulario, y recoge información sobre la presencia de distintos tipos de plagas en los hogares.
+  Esta variable corresponde a la pregunta 10.6.2 del formulario, y recoge información sobre la presencia de distintos tipos de plagas en los hogares.
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Al ser una variable categórica nominal de respuesta múltiple, para visualizar los datos utilizaremos gráficos de bastones.
+  Al ser una variable categórica nominal de respuesta múltiple, para visualizar los datos utilizaremos gráficos de bastones.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
-
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("10.6.2", REFERENCIA))
@@ -399,19 +394,19 @@ df_plagas <- df %>%
 
 \vspace{-5pt}
 
-Esta variable corresponde a la pregunta 11.9.2 del formulario, y releva la frecuencia con la que se realiza la recolección de residuos en el entorno de cada vivienda.
+  Esta variable corresponde a la pregunta 11.9.2 del formulario, y releva la frecuencia con la que se realiza la recolección de residuos en el entorno de cada vivienda.
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Dado que se trata de una variable categórica ordinal, para visualizar los datos se empleará un gráfico de barras horizontales que permita comparar fácilmente las distintas frecuencias reportadas. El orden de las categorías será de menor a mayor frecuencia, con el objetivo de facilitar la lectura.
+  Dado que se trata de una variable categórica ordinal, para visualizar los datos se empleará un gráfico de barras horizontales que permita comparar fácilmente las distintas frecuencias reportadas. El orden de las categorías será de menor a mayor frecuencia, con el objetivo de facilitar la lectura.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
 
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -470,20 +465,20 @@ Como puede observarse, de las 312 viviendas que se ven afectadas por la presenci
 
 \vspace{-5pt}
 
-Esta variable corresponde a la preguntas 5.3 y 3.2.1 del formulario, y releva cómo es la presión de agua y cuál es el número máximo de personasn que duermen en dormitorios.
+  Esta variable corresponde a la preguntas 5.3 y 3.2.1 del formulario, y releva cómo es la presión de agua y cuál es el número máximo de personasn que duermen en dormitorios.
 
 **Enfoque analítico**:
 
 \vspace{-5pt}
 
-Estas variables parecen a primera vista no relacionarse sin embargo esto debería verificarse.
+  Estas variables parecen a primera vista no relacionarse sin embargo esto debería verificarse.
 
 **Lectura preliminar**:
 
 \vspace{-5pt}
 
-A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
-
+  A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas.
+  
 ```{r}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("5.3", REFERENCIA))
@@ -504,6 +499,7 @@ df_agua <- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_5.3_1, id_3.2_1)
 
 ```
+
 
 \medskip
 
