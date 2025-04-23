@@ -26,34 +26,32 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 # Introducción
 
-El presente documento expone un plan de análisis de los datos recolectados mediante un [formulario en barrios populares del país](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view). El relevamiento abordó *aspectos habitacionales y condiciones de vida de la [población encuestada](https://drive.google.com/file/d/1fMCOK3D0yB-V5sCDUxDRAJEi7sptYBuV/view)*, con el objetivo de **construir un diagnóstico técnico que permita identificar problemáticas clave**.
+El presente documento presenta un plan de análisis de datos relevados en barrios populares del país mediante un [formulario sobre condiciones habitacionales y de vida](https://drive.google.com/file/d/1QkCHbHwFUOcRX_6dfxcHu8ChqzV6-SCn/view).
 
-El análisis propuesto prioriza la claridad metodológica y la trazabilidad de cada decisión tomada, fundamentando los enfoques adoptados y la selección de recursos graficos y numéricos para representar las dimensiones más relevantes del fenómeno estudiado.
+\vspace{-5pt}
 
-\bigskip
+Dado que la muestra no es probabilistica, los resultados no buscan ser generalizables, sino describir la situación específica de la [población encuestada](https://drive.google.com/file/d/1fMCOK3D0yB-V5sCDUxDRAJEi7sptYBuV/view). El análisis prioriza la claridad metodológica y la fundamentación de cada decisión, tanto en la elección de variables como de los recursos gráficos y analíticos a utilizar.
+
+\medskip
 
 # Objetivos
 
-El análisis se orienta a la construcción de un **diagnóstico descriptivo que visibiliza la calidad de vida en los barrios relevados, con especial énfasis en las carencias habitacionales**\*.
+El análisis busca visibilizar las condiciones de vida en los barrios relevados. Las variables seleccionadas fueron definidas por su capacidad para reflejar necesidades urgentes y orientar la toma de decisiones, facilitando la identificación de áreas críticas que requieren atención prioritaria.
 
-Las variables seleccionadas fueron definidas en función de su relevancia analítica y potencial para *identificar necesidades urgentes, permitiendo detectar áreas críticas que requieren atencion prioritaria y aportar insumos útiles para la toma de decisiones*.
-
-\bigskip
+\medskip
 
 # Población en estudio
 
-Se analizará la [información obtenida del Relevamiento de Condiciones Habitacionales](https://drive.google.com/file/d/1IRhvzOQkvuspQF3TAsBCI-68i8ya0_hy/view), en particular sobre algunos puntos de interés, con el objetivo de poder generar impacto en la sociedad sobre las condiciones en las que se encontraban las familias en distintas villas en el año 2022. Se busca generar conciencia social y, más importante aún, posibilitar la mejora de las condiciones de vida. Eventualmente, dado el soporte del Observatorio Villero, esta información será nuevamente relevada, y se podrá determinar si las acciones tomadas mejoraron las condiciones de vida generales de las familias involucradas.
-
-Debido a que la recolección de datos fue realizada de forma no considerada correcta desde el punto de vista técnico estadístico, la muestra se considera no probabilística, lo que implica que los resultados y análisis estarán restringidos únicamente a los barrios efectivamente relevados.
+Se analizará la información obtenida del [Relevamiento de Condiciones Habitacionales](https://drive.google.com/file/d/1IRhvzOQkvuspQF3TAsBCI-68i8ya0_hy/view) realizado en distintas "villas" del país durante el año 2022. La información fue recolectada mediante un cuestionario llenado por la persona considerada "jefe del hogar" de su vivienda. Se reutilizarán [técnicas de manipulación de datos desarrolladas por el equipo en informes anteriores](https://github.com/PyE-LCC/TP12025), asegurando consistencia metodológica.
 
 <!-- Las encuentas realizadas que han sido documentadas en el archivo "Datos_LP". -->
-Se reutilizarán [técnicas de manipulación de datos previamente desarrolladas y documentadas en el repositorio del equipo de trabajo](https://github.com/PyE-LCC/TP12025). Esto permitirá agilizar el procesamiento y asegurar la consistencia metodológica con informes anteriores.
 
+```{=html}
 <!--        
 - dh: Dataframe de respuestas a todas las preguntas de la encuesta, cada fila es una respuesta y las columnas tienen la pregunta y sección asociada.
 - df: Dataframe de encuestas, cada fila es una encuesta y cada columna una variable de la encuesta como por ejemplo el barrio, provincia y respuestas dadas.
 -->
-   
+```
 
 ```{r}
 # Tratamiento de columnas/variables de datos de encuestas por encabezados multiple
@@ -81,7 +79,7 @@ df$BARRIO = str_to_upper(df$BARRIO)
 df$PROVINCIA = str_to_upper(df$PROVINCIA)
 ```
 
-```{r}
+```{r include=FALSE}
 # Cantidad de preguntas por sección
 dh_secciones <- dh %>% 
   group_by(SECCIONES) %>% 
@@ -96,6 +94,7 @@ ggplot(dh_secciones) +
   labs(x = "Sección", y = "Número de Preguntas", title = "Cantidad de Preguntas por Sección") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 <!-- Se muestra la cantidad de preguntas realizadas de cada sección. -->
 
 ```{r, out.width="50%", fig.show='hold'}
@@ -132,21 +131,15 @@ ggplot(df_provincia) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Del Gráfico 2.1 se desprende que algunos barrios presentan más de 100 encuestas realizadas, mientras que otros registran menos de 30. Esta misma disparidad se evidencia en el Gráfico 2.2, donde ciertas provincias superan las 200 encuestas, en contraste con otras que no alcanzan las 30.
+Se registraron diferencias significativas en la cantidad de encuestas por barrio (gráfico 1) y por provincia (gráfico 2), con algunos casos por encima de 200 y otros por debajo de 30. Esto podría implicar sesgos en los datos que no pueden corregirse únicamente mediante limpieza, por lo que se tendrá especial atención en su interpretación.
 
-Esta heterogeneidad en la distribución de encuestas será considerada con especial atención, ya que podría indicar la presencia de sesgos en los datos que no pueden ser corregidos mediante procesos de depuración o limpieza.
-
-\bigskip
+\medskip
 
 # Plan de Análisis
 
-Con el fin de organizar los resultados y facilitar su interpretación, la estructura del análisis se divide en dos ejes principales: **Servicios Básicos** y **Calidad de Vida**. En cada variable analizada, se utilizará el siguiente esquema:
+Con el fin de organizar los resultados y facilitar su interpretación, el análisis se estructura en dos ejes principales "**Servicios Básicos y Condiciones Económicas"** y "**Calidad de Vida"**. Para cada variable incluida, se seguirá un esquema común que contempla una *descripción general* sobre qué mide y su relevancia en el contexto, un *enfoque analítico* que justifica el uso de herramientas gráficas y analíticas elegidas, y un *análisis exploratorio* donde se habla de los hallazgos clave que motivaron la elección de dicha variable.
 
-1.  **Descripción general**: Breve explicación de qué mide la variable, y por qué es relevante en el contexto del análisis.
-2.  **Enfoque analítico**: Que tipo de análisis se va a hacer (gráficos, tablas, datos numéricos, etc) y por qué este recurso es el más adecuado para interpretarla.
-3.  **Analisis exploratorio**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida.
-
-\bigskip
+\medskip
 
 # 1. Servicios Básicos y Condiciones Económicas
 
@@ -158,9 +151,9 @@ Con el fin de organizar los resultados y facilitar su interpretación, la estruc
 
 Se define una variable que resume la **cantidad de servicios básicos formales a los que accede cada vivienda**, considerando si el encuestado indicó contar con:
 
-- Agua potable con medidor (pregunta 5.1 del formulario)
-- Conexión a red de gas natural (pregunta 6.1)
-- Conexión a la red eléctrica con medidor (pregunta 7.1).
+-   Agua potable con medidor (pregunta 5.1 del formulario)
+-   Conexión a red de gas natural (pregunta 6.1)
+-   Conexión a la red eléctrica con medidor (pregunta 7.1).
 
 ### Enfoque Analítico
 
@@ -213,7 +206,7 @@ df_servicios%>%
   summarise("FAMILIAS SIN SERVICIOS" = n()) %>%
   arrange(desc(`FAMILIAS SIN SERVICIOS`))
 ```
- 
+
 ```{r echo=FALSE}
 df_servicios %>%
   mutate(
@@ -224,6 +217,7 @@ df_servicios %>%
             "Familias sin servicios" = sum(ninguno),
             "Total" = n())
 ```
+
 De los datos relevados, se observa que solo el **3 % de los hogares cuenta con acceso formal a los tres servicios básicos**, mientras que un **47 % no accede formalmente a ninguno**.
 
 ```{r echo=FALSE}
@@ -233,7 +227,6 @@ df_servicios %>%
 ```
 
 Esta nueva variable puede describirse numéricamente mediante la mediana y el rango intercuartílico, dado que presenta indicios de asimetría en su distribución. Esta conclusión se fundamenta en la diferencia observada entre la media y la mediana, así como en el hecho de que el tercer cuartil adopta el valor 1 en lugar de 2.
-
 
 \medskip
 
@@ -280,8 +273,8 @@ df_quema %>%
   summarize("Familias con conexion informal" = sum(perdidas_informal),
             "Total" = sum(perdidas))
 ```
-De los datos relevados, puede observarse que del total de familias que acceden al servicio de electricidad de manera "informal, el 56.% sufrio perdidas materiales vinculadas al servicio.
 
+De los datos relevados, puede observarse que del total de familias que acceden al servicio de electricidad de manera "informal, el 56.% sufrio perdidas materiales vinculadas al servicio.
 
 \medskip
 
@@ -324,7 +317,7 @@ df_propiedad <- df_propiedad %>%
 # Muestra de datos
 df_propiedad
 ```
- 
+
 \medskip
 
 ## 1.4. Costo del alquiler
@@ -412,7 +405,6 @@ df_plagas$CUCARACHAS <- as.factor(df_plagas$CUCARACHAS)
 df_plagas$MOSQUITOS <- as.factor(df_plagas$MOSQUITOS)
 df_plagas$RATAS <- as.factor(df_plagas$RATAS)
 ```
-
 
 ```{r echo=FALSE}
 df_plagas[4:6] %>% summary()
@@ -515,7 +507,7 @@ Esta variables corresponden a la *preguntas 5.3 y 3.2.1* del formulario, y relev
 
 \vspace{-5pt}
 
-La presión de agua es  categórica ordinal con un orden de "muy debil", "debil" y "normal" mientras que el número máximo de personas que duermen en dormitorios es cuantitativa discreta. Crearemos un **boxplots**  del número de personas por nivel de presión de agua.
+La presión de agua es categórica ordinal con un orden de "muy debil", "debil" y "normal" mientras que el número máximo de personas que duermen en dormitorios es cuantitativa discreta. Crearemos un **boxplots** del número de personas por nivel de presión de agua.
 
 ### Analisis exploratorio
 
@@ -609,9 +601,9 @@ df_tablets %>%
 
 Estas variable puede describirse numéricamente mediante la media, la desviación estándar, así como los valores máximo y mínimo, ya que presenta indicios de simetría en su distribución (o levemente asimétrico por derecha) y un nivel moderado de dispersión, aunque se podría pensar que existen outliers por los valores máximos observados. Esta afirmación de simetría se sustenta en la cercanía observada entre la media y la mediana, así como en los valores del primer y tercer cuartil, que se encuentran aproximadamente a la misma distancia respecto a la mediana.
 
-
 \bigskip
 
+```{=html}
 <!--
 # Seleccion de variables de estudio para descripciones graficas
 
@@ -633,3 +625,4 @@ Estas variable puede describirse numéricamente mediante la media, la desviació
 -   [ ] Una variable categórica y una variable cuantitativa
 -   [ ] Dos variables cuantitativas
 -->
+```
