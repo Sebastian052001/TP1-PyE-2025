@@ -9,7 +9,7 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 # setup
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE, include = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
 ```
 
 ```{r}
