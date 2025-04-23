@@ -9,10 +9,10 @@ urlcolor: blue
 
 ```{r setup, include=FALSE}
 # setup
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE, include = FALSE)
 ```
 
-```{r include=FALSE}
+```{r}
 # Lista de librerías
 packages <- c("readxl", "dplyr", "tidyr", "data.table", "stringr", "ggplot2")
 
@@ -81,7 +81,7 @@ df$BARRIO = str_to_upper(df$BARRIO)
 df$PROVINCIA = str_to_upper(df$PROVINCIA)
 ```
 
-```{r include=FALSE}
+```{r}
 # Cantidad de preguntas por sección
 dh_secciones <- dh %>% 
   group_by(SECCIONES) %>% 
@@ -144,14 +144,8 @@ Con el fin de organizar los resultados y facilitar su interpretación, la estruc
 
 1.  **Descripción general**: Breve explicación de qué mide la variable, y por qué es relevante en el contexto del análisis.
 2.  **Enfoque analítico**: Que tipo de análisis se va a hacer (gráficos, tablas, datos numéricos, etc) y por qué este recurso es el más adecuado para interpretarla.
-3.  **Lectura preliminar**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida.
+3.  **Analisis exploratorio**: Datos claves que hayan sido encontrados al analizar los datos, para explicar por qué cada una fue elegida.
 
-<!-- [NOTA (SOF): lo que esta entre \*\* despues lo borramos? es para que lo vean ustedes y mantengamos la misma estructura en todo el plan de analisis. podriamos dejarlo tambien para explicar bien todo, pero hay que redactarlo un poco mejor.
-MM: Por mi lo dejamos.*
-
-*Aparte, como no hacemos graficos no se muy bien si incluir o no las tablas que fuimos haciendo en informe_tecnico_grupal. si las agregamos seria para justificar los datos de la lectura preliminar, pero no estoy segura de si hace falta. si creen que hay que agregarlo agreguenlo]*
-SS: Estaria bueno dejarlo para tener un poco mas de explicaciones
--->
 \bigskip
 
 # 1. Servicios Básicos y Condiciones Económicas
@@ -172,17 +166,15 @@ Se define una variable que resume la **cantidad de servicios básicos formales a
 
 \vspace{-5pt}
 
-Al tratarse de una variable cuantitativa discreta, se utilizará un **gráfico de bastones** para representar la distribución de viviendas según la cantidad de servicios formales a los que acceden.
+Considerando esta nueva variable y al tratarse de una variable cuantitativa discreta, se utilizará un **gráfico de bastones** para representar la distribución de viviendas según la cantidad de servicios formales a los que acceden.
 
 \vspace{-5pt}
 
-Además, a modo de acompañar los datos, se agregará una **tabla de distribución de frecuencias** para poder visualizar en números los datos obtenidos, y hacer un análisis más riguroso de los resultados.
+Además, a modo de acompañar los datos, se agregará una **tabla de distribución de frecuencias** para poder visualizar en proporciones de los datos calculados, y hacer un análisis más riguroso de los resultados.
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
-
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
 
 ```{r include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -206,14 +198,14 @@ df %>% group_by(id_7.1_1) %>% summarise("TOTAL" = n())
 df_servicios <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_5.1_1, id_6.1_1, id_6.1_2, id_6.1_3, id_6.1_4, id_6.1_5, id_7.1_1)
 # Tratamiento de datos
 df_servicios <- df_servicios %>% 
-  mutate("poseeAgua"=ifelse(grepl("A través de una conexión con medidor a la red pública ", id_5.1_1), 1, 0)) %>%
-  mutate("poseeGas"=ifelse(grepl("Gas natural (red de gas)", id_6.1_1), 1, 0)) %>%
+  mutate("poseeAgua"=ifelse(grepl("A través de una conexión con medidor a la red pública", id_5.1_1), 1, 0)) %>%
+  mutate("poseeGas"=ifelse(!is.na(id_6.1_1), 1, 0)) %>%
   mutate("poseeElectricidad"=ifelse(grepl("Conexión a través de un medidor a la red eléctrica", id_7.1_1), 1, 0))
 df_servicios$poseeServicios = df_servicios$poseeAgua + df_servicios$poseeGas + df_servicios$poseeElectricidad
-df_servicios <- df_servicios %>% select(ORDEN, PROVINCIA, BARRIO, poseeServicios)
+df_servicios <- df_servicios %>% select(ORDEN, PROVINCIA, BARRIO, poseeServicios, poseeAgua, poseeGas, poseeElectricidad)
 ```
 
-```{r, include=FALSE}
+```{r include=FALSE}
 # Agrupación de datos y suma de encuestas con filtro
 df_servicios%>% 
   filter(poseeServicios == 0) %>% 
@@ -222,7 +214,7 @@ df_servicios%>%
   arrange(desc(`FAMILIAS SIN SERVICIOS`))
 ```
  
-```{r}
+```{r echo=FALSE}
 df_servicios %>%
   mutate(
     todos = ifelse(poseeServicios == 3, 1, 0),
@@ -232,8 +224,16 @@ df_servicios %>%
             "Familias sin servicios" = sum(ninguno),
             "Total" = n())
 ```
- <!-- SS: tengo que corregir la tabla ya que los datos que tira no se corresponden con lo dicho abajo -->
 De los datos relevados, se observa que solo el **3 % de los hogares cuenta con acceso formal a los tres servicios básicos**, mientras que un **47 % no accede formalmente a ninguno**.
+
+```{r echo=FALSE}
+df_servicios %>%
+  select(poseeServicios) %>%
+  summary()
+```
+
+Esta nueva variable puede describirse numéricamente mediante la mediana y el rango intercuartílico, dado que presenta indicios de asimetría en su distribución. Esta conclusión se fundamenta en la diferencia observada entre la media y la mediana, así como en el hecho de que el tercer cuartil adopta el valor 1 en lugar de 2.
+
 
 \medskip
 
@@ -249,14 +249,12 @@ Esta relación permite explorar si existe un vínculo entre la forma en que los 
 
 \vspace{-5pt}
 
-Al analizar la relación entre una variable cateǵorica politómica y una categórica dicotómica, se optará por utilizar un **gráfico de barras agrupadas** para visualizar los datos.
+Al analizar la relación entre una variable cateǵorica politómica y una categórica dicotómica, se optará por utilizar un **gráfico de barras agrupadas** para visualizar los datos. Se calcularán proporciones sobre las categorías de las variables que generen mayor impacto al lector.
 
-### Lectura Preliminar:
+### Analisis exploratorio:
 
 \vspace{-5pt}
 
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
- 
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("7.1", REFERENCIA))
@@ -284,6 +282,7 @@ df_quema %>%
 ```
 De los datos relevados, puede observarse que del total de familias que acceden al servicio de electricidad de manera "informal, el 56.% sufrio perdidas materiales vinculadas al servicio.
 
+
 \medskip
 
 ## 1.3. Tipo de Tenencia
@@ -298,13 +297,11 @@ Esta variable corresponde a la *pregunta 4.3 del formulario* e identifica el tip
 
 \vspace{-5pt}
 
-La variable a analizar es categórica nominal, se utilizará un **gráfico de barras horizontales ordenado por frecuencia** para visualizar los datos.
+La variable a analizar es categórica nominal, se utilizará un **gráfico de barras horizontales ordenado por frecuencia** para visualizar los datos. Se calcularán proporciones sobre las categorías de las variables que generen mayor impacto al lector.
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
-
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
 
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -319,6 +316,7 @@ df_propiedad <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_4.3_1)
 
 # Tratamiendo de datos
 df_propiedad <- df_propiedad %>% 
+  #group_by(PROVINCIA, id_4.3_1) %>%
   group_by(PROVINCIA, BARRIO, id_4.3_1) %>%
   tally() %>%
   pivot_wider(names_from = id_4.3_1, values_from = n)
@@ -327,12 +325,6 @@ df_propiedad <- df_propiedad %>%
 df_propiedad
 ```
  
-```{r, include=FALSE}
-# Muestra de medidas características
-df_propiedad[3:7] %>% 
-  summary()
-```
-
 \medskip
 
 ## 1.4. Costo del alquiler
@@ -347,13 +339,11 @@ Esta variable releva el monto mensual que los hogares destinan al pago del alqui
 
 \vspace{-5pt}
 
-Al ser una variable cuantitativa continua, Se utilizará un **boxplot** o **histograma**, dependiendo de cual sea la mejor manera de mostrar los datos.
+Al ser una variable cuantitativa continua, Se utilizará un **boxplot** o **histograma**, la selección dependerá de cual sea la mejor manera de mostar los datos de forma clara y que genere impacto al lector.
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
-
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
 
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -369,13 +359,15 @@ df_costo<- df %>%
   select(ORDEN, PROVINCIA, BARRIO, id_4.3_1, id_4.4.2_1)
 ```
 
-```{r, include=FALSE}
+```{r echo=FALSE}
 # Muestra de medidas características sobre la distrubución de encuestas en barrios según filtro anterior
 df_costo %>% 
   filter(grepl("Alquilado", id_4.3_1)) %>%
   select(id_4.4.2_1) %>%
   summary()
 ```
+
+Esta variable puede describirse numéricamente mediante la media, la desviación estándar, así como los valores máximo y mínimo, ya que presenta indicios de simetría en su distribución (o levemente asimétrico por derecha) y un nivel moderado de dispersión, aunque se podría pensar que existen outliers por el valor máximo observado. Esta afirmación de simetría se sustenta en la cercanía observada entre la media y la mediana, así como en los valores del primer y tercer cuartil, que se encuentran aproximadamente a ±4000 unidades respecto a la mediana.
 
 \medskip
 
@@ -393,13 +385,12 @@ Esta variable corresponde a la *pregunta 10.6.2* del formulario, y recoge inform
 
 \vspace{-5pt}
 
-Al ser una variable categórica nominal de respuesta múltiple, se elige visualizar los datos con **gráficos de bastones**.
+Al ser una variable categórica nominal de respuesta múltiple, se elige visualizar los datos con **gráficos de bastones**. Se calcularán proporciones sobre las categorías de las variables que generen mayor impacto al lector.
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
 
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("10.6.2", REFERENCIA))
@@ -411,7 +402,23 @@ df %>% group_by(id_10.6.2_1, id_10.6.2_2, id_10.6.2_3) %>% summarise("TOTAL" = n
 # Selección de datos
 df_plagas <- df %>% 
   select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_2, id_10.6.2_3)
+
+df_plagas <- df_plagas %>% 
+  rename(
+    "CUCARACHAS" = id_10.6.2_1,
+    "MOSQUITOS" = id_10.6.2_2,
+    "RATAS" = id_10.6.2_3)
+df_plagas$CUCARACHAS <- as.factor(df_plagas$CUCARACHAS)
+df_plagas$MOSQUITOS <- as.factor(df_plagas$MOSQUITOS)
+df_plagas$RATAS <- as.factor(df_plagas$RATAS)
 ```
+
+
+```{r echo=FALSE}
+df_plagas[4:6] %>% summary()
+```
+
+Se calcularan proporciones de los valores considerando que existe respuestas múltiples
 
 \medskip
 
@@ -429,11 +436,9 @@ Esta variable corresponde a la *pregunta 11.9.2* del formulario, y releva la fre
 
 Dado que se trata de una variable categórica ordinal, para visualizar los datos se empleará un **gráfico de barras horizontales** que permita comparar fácilmente las distintas frecuencias reportadas. El orden de las categorías será de menor a mayor frecuencia, con el objetivo de facilitar la lectura.
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
-
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
 
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
@@ -460,6 +465,8 @@ df_recolección[3:6] %>%
   summary()
 ```
 
+Esta nueva variable puede describirse numéricamente mediante la mediana y el rango intercuartílico, dado que presenta indicios de asimetría en su distribución. Esta conclusión se fundamenta en la diferencia observada entre la media y la mediana, así como en el hecho de que hay valores extemos muy altos (outliers).
+
 \medskip
 
 ## 2.3. Relación Entre Presencia de Plagas y Cercanía a Basurales
@@ -476,7 +483,7 @@ df_recolección[3:6] %>%
 
 <!-- COMPLETAR -->
 
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
 
@@ -498,14 +505,12 @@ Esta variables corresponden a la *preguntas 5.3 y 3.2.1* del formulario, y relev
 
 \vspace{-5pt}
 
-Estas variables parecen a primera vista no relacionarse, sin embargo esto debería verificarse.
+La presión de agua es  categórica ordinal con un orden de "muy debil", "debil" y "normal" mientras que el número máximo de personas que duermen en dormitorios es cuantitativa discreta. Crearemos un **boxplots**  del número de personas por nivel de presión de agua.
 
-### Lectura preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
 
-<!-- A continuación se muestran las preguntas y respuestas correspondientes a las variables seleccionadas. -->
-  
 ```{r, include=FALSE}
 # Muestra Seccion y pregunta del dataframe de encuestas
 dh %>% filter(grepl("5.3", REFERENCIA))
@@ -524,9 +529,21 @@ df %>% group_by(id_3.2_1) %>% summarise("TOTAL" = n())
 # Selección de datos
 df_agua <- df %>% 
   select(ORDEN, PROVINCIA, BARRIO, id_5.3_1, id_3.2_1)
-
+df_agua <- df_agua %>% 
+  rename(
+    "PRESION" = id_5.3_1,
+    "CANTIDAD DE PERSONAS EN DORM." = id_3.2_1)
+df_agua$PRESION <- as.factor(df_agua$PRESION)
 ```
 
+```{r echo=FALSE}
+# Muestra de medidas características sobre la distrubución de encuestas
+df_agua %>% 
+  select(PRESION, `CANTIDAD DE PERSONAS EN DORM.`) %>%
+  summary()
+```
+
+Esta nueva variable puede describirse numéricamente mediante la mediana y el rango intercuartílico, dado que presenta indicios de asimetría en su distribución. Esta conclusión se fundamenta en la diferencia observada entre la media y la mediana, así como en el hecho de que hay valores extemos muy altos (outliers).
 
 \medskip
 
@@ -542,11 +559,9 @@ Esta comparación busca explorar la relación entre la cantidad de niñas, niño
 
 \vspace{-5pt}
 
-Se trata de dos variables cuantitativas discretas, por lo que se utilizará un **diagrama de dispersión** para representar su relación.
+Se trata de dos variables cuantitativas discretas, por lo que se utilizará un **diagrama de dispersión** para representar su relación. Calcularemos el **coeficiente de correlacion de Pearson** para analizar correlación lineal entre variables y verificaremos este resultado con el diagrama.
 
-<!-- NOTA (SOF): Agregar coef de correlacion de Pearson quizas? -->
-
-### Lectura Preliminar
+### Analisis exploratorio
 
 \vspace{-5pt}
 
@@ -568,14 +583,26 @@ df %>% group_by(id_8.4_1) %>% summarise("TOTAL" = n())
 # Selección de datos
 df_tablets <- df %>% 
   select(ORDEN, PROVINCIA, BARRIO, id_1.9_1, id_8.4_1)
+df_tablets$id_8.4_1 <- df_tablets$id_8.4_1 %>% as.numeric()
+df_tablets <- df_tablets %>% 
+  rename(
+    "CANTIDA DE MENORES" = id_1.9_1,
+    "CANTIDAD DE DISP." = id_8.4_1)
 ```
+
+```{r echo=FALSE}
+# Muestra de medidas características sobre la distrubución de encuestas
+df_tablets %>% 
+  select(`CANTIDA DE MENORES`, `CANTIDAD DE DISP.`) %>%
+  summary()
+```
+
+Estas variable puede describirse numéricamente mediante la media, la desviación estándar, así como los valores máximo y mínimo, ya que presenta indicios de simetría en su distribución (o levemente asimétrico por derecha) y un nivel moderado de dispersión, aunque se podría pensar que existen outliers por los valores máximos observados. Esta afirmación de simetría se sustenta en la cercanía observada entre la media y la mediana, así como en los valores del primer y tercer cuartil, que se encuentran aproximadamente a la misma distancia respecto a la mediana.
+
 
 \bigskip
 
-# Conclusión Preliminar
 <!--
-[NOTA (SOF): esto que sigue no lo actualize con lo que fui subiendo pero ya hay minimo una variable de cada tipo]
-
 # Seleccion de variables de estudio para descripciones graficas
 
 -   [ ] Variable categórica medida en escala nominal
