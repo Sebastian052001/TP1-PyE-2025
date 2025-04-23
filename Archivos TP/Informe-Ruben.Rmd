@@ -475,21 +475,31 @@ Esta nueva variable puede describirse numéricamente mediante la mediana y el ra
 
 \vspace{-5pt}
 
-<!-- COMPLETAR -->
+Se van a estudiar las variables correspondientes a las preguntas *10.6* (¿Hay plagas en su vivienda y en los alrededores de la misma?) y *11.6* (¿Hay basurales cerca de su vivienda?). Se busca ver si la presencia de basurales cerca de la vivienda puede representar un factor de riesgo de enfermedades para los vecinos.
 
 ### Enfoque Analítico
 
 \vspace{-5pt}
 
-<!-- COMPLETAR -->
+Se busca estudiar la población que se vea afectada por plagas en sus viviendas y observar si la misma se encuentra cerca de basurales (variable categórica nominal). Para ello, emplearemos un gráfico de barras horizontales.
 
-### Analisis exploratorio
+### Análisis Exploratorio
 
 \vspace{-5pt}
 
-<!-- COMPLETAR -->
+```{r}
+# Selección de datos
+df_plagas <- df %>% select(ORDEN, PROVINCIA, BARRIO, id_10.6.2_1, id_10.6.2_3, id_11.7_1)
+df_plagas %>%
+  mutate(
+    cuca_rata = ifelse(!is.na(id_10.6.2_1) & !is.na(id_10.6.2_3), 1, 0),
+    basural = ifelse(id_11.7_1 != "No" & cuca_rata == 1, 1, 0),
+  ) %>%
+  summarize("Familias Cercanas a Basurales" = sum(basural),
+            "Total" = sum(cuca_rata))
+```
 
-Como puede observarse, de las 312 viviendas que se ven afectadas por la presencia de plagas, 223 (%71.47) se encuentran en las cercanías de un basural.
+Como puede observarse, de las 312 viviendas que se ven afectadas por la presencia de plagas (cucarachas y ratas), 223 (%71.47) se encuentran en las cercanías de un basural.
 
 \medskip
 
