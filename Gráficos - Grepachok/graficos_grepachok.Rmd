@@ -1,0 +1,596 @@
+---
+title: "grepachok-datos"
+output: html_document
+date: "2025-05-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Requermientos de RStudio
+
+Para la elaboración del presente informe se reutilizarán técnicas de manipulación de datos previamente desarrolladas y documentadas en el repositorio del equipo de trabajo. Esto permitirá agilizar el procesamiento y asegurar la consistencia metodológica con informes anteriores.
+
+Los bloques de código iniciales permitirán instalar y cargar las librerías necesarias para la elaboración del informe. Estas librerías permiten la manipulación, visualización y análisis estadístico de los datos en el entorno de trabajo RStudio. El código contempla tanto la instalación (en caso de que no estén previamente disponibles) como la carga de los paquetes requeridos para garantizar la reproducibilidad del análisis.
+
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE}
+# setup
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message=FALSE)
+```
+
+```{r}
+# Lista de librerías
+packages <- c("readxl", "dplyr", "tidyr", "data.table", "janitor", "ggplot2", "showtext")
+```
+
+```{r}
+# Instalación de librerías
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {install.packages(packages[!installed_packages])}
+```
+
+```{r}
+# Carga de librerías
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+## Tratamiento de datos de encuesta
+
+Se analizarán las respuestas sobre las encuentas realizadas que han sido documentadas en el archivo "Datos_LP". Esta información originalmente no posee las características de datos ordenados según las librerías que se pretender utilizar. Para ello, se tratarán los datos para lograr una estructura "tidy", esto es: - Cada columna será una variable, es decir, una pregunta de la encuesta. - Cada fila un resultado de encuesta dado por grupo familia. - Cada valor será el la respuesta dada a una pregunta por el grupo familiar.
+
+Con este objetivo entonces se realizan las siguientes transformaciones: - Unificacición de los títulos multinivel (Sección, referencia y pregunta) en el archivo. - Identificación parcial de cada pregunta y su respuesta asociada (para una posterior verificación de consistencia en los datos)
+
+En esta sección, se observa que la cantidad de preguntas asociadas a cada tema varía considerablemente. Por ejemplo, se encuentran solo 2 preguntas relacionadas con el hacinamiento, en contraste con las 26 preguntas dirigidas al tema de materiales. Esta disparidad en la distribución de las preguntas podría influir en los resultados del análisis, ya que la representatividad de los temas tratados podría no estar equilibrada.
+
+Es recomendable considerar este desequilibrio al interpretar las respuestas, ya que un mayor número de preguntas puede generar una mayor influencia en la percepción sobre ciertos temas.
+
+```{r message=FALSE, warning=FALSE}
+# Analisis de columnas/variables de datos de encuestas por encabezados multiple
+dh <- read_excel(path = "./Datos_LP.xlsx", n_max = 3, col_names = FALSE) 
+dh <- dh %>% transpose() %>% fill(V1, V2, V3, .direction = "down")
+colnames(dh) <-c("SECCIONES", "REFERENCIA", "PREGUNTA")
+dh <- dh[-1:-3,]
+dh <- dh %>% group_by(PREGUNTA) %>% mutate(ID = row_number(PREGUNTA))
+dh$ID <- paste(dh$REFERENCIA, dh$ID, sep = "_")
+dh$ID <- paste("id", dh$ID, sep = "_")
+```
+
+```{r include=FALSE}
+# Tratamiento de títulos de columnas de datos de encuestas
+cn2 <- dh %>% transpose()
+cn2 <- cn2[4,]
+cn1 <- c("ORDEN", "PROVINCIA", "BARRIO")
+col_names <- c(cn1, cn2) %>% as.character()
+```
+
+```{r}
+# Exploración inicial de datos originales
+df <- 
+  read_excel(path = "./Datos_LP.xlsx", 
+             skip = 3, 
+             col_names = col_names) %>% 
+  data.frame() %>% 
+  arrange(ORDEN)
+```
+
+
+# GRÁFICOS
+
+## Theme
+```{r}
+attach(df)
+
+font_add_google(name="Lato", family = "lato")
+showtext_auto()
+
+theme_set(
+  theme_minimal() +
+    theme(
+      panel.grid.major = element_line(linetype="dashed", color = "#AAAAAA80"),
+      text = element_text(family = "lato", color = "#333333"),
+      plot.title = element_text(size = 15, face = "bold"),
+      plot.subtitle = element_text(size = 14),
+      axis.title.x = element_text(size = 14, margin = margin(t = 8)),
+      axis.title.y = element_text(size = 14, margin = margin(r = 8)),
+      axis.text = element_text(size = 13),
+      legend.title = element_text(size = 13, margin = margin(t = 14, b = 8)),
+      legend.text = element_text(size = 11),
+      axis.line = element_line(color = "#999999"),
+      axis.ticks = element_line(color = "#999999"),
+      panel.grid = element_blank(),
+      panel.background = element_rect(fill = "#FCF7F6", colour = NA),
+      plot.background = element_rect(fill = "#FCF7F6", colour = NA),
+      legend.background = element_rect(fill = "#FCF7F6", colour = NA),
+      legend.box.background = element_rect(fill = "#FCF7F6", colour = NA),
+      legend.key = element_rect(fill = "#FCF7F6", colour = "transparent")
+    )
+)
+```
+
+
+## 1.1. Cantidad de servicios formales por vivienda
+```{r}
+# Función auxiliar para recodificar respuestas
+recodificar_respuestas <- function(df, id, respuestas_positivas) {
+  variable <- df[[id]]
+  respuestas_unicas <- unique(variable)
+  # Recodificación según respuestas positivas
+  for (i in seq_along(respuestas_unicas)) {
+    variable[variable == respuestas_unicas[i]] <- 
+      ifelse(i %in% respuestas_positivas, "1", "0")
+  }
+  as.numeric(variable)
+}
+
+# id_5.1_1: la segunda respuesta es "A través de una conexión con medidor 
+# a la red pública, se considera positiva. El resto, se considera negativa.
+res_5.1_1 <- recodificar_respuestas(df, "id_5.1_1", respuestas_positivas = 2)
+
+# id_6.1_1: las respuestas N/A se consideran negativas.
+res_6.1_1 <- df[["id_6.1_1"]]
+res_6.1_1 <- ifelse(is.na(res_6.1_1), 0, ifelse(res_6.1_1 == unique(res_6.1_1)[1], 1, 0))
+res_6.1_1 <- as.numeric(res_6.1_1)
+
+# id_7.1_1: La primera respuesta es "Conexión a través de un medidor a la
+# red eléctrica", se considera positiva. El resto, se considera negativa.
+res_7.1_1 <- recodificar_respuestas(df, "id_7.1_1", respuestas_positivas = 1)
+
+# Creacion de la variable 12.1_1: Suma total por fila de las anteriores
+total_encuestados <- 1222
+res_12.1_1 <- rowSums(cbind(res_5.1_1, res_6.1_1, res_7.1_1))
+
+# TABLA RESUMEN ---
+total_12.1_1 <- table(res_12.1_1)
+frec_12.1_1 <- round(total_12.1_1 / total_encuestados, 2)
+cumsum_12.1_1 <- cumsum(frec_12.1_1)
+table_12.1_1 <- cbind(total_12.1_1, frec_12.1_1, cumsum_12.1_1)
+tbl_formales <- data_frame(c(0, 1, 2, 3), total_12.1_1, frec_12.1_1, cumsum_12.1_1)
+
+## Gráfico de bastones
+plt_servicios_formales <- df %>%
+  ggplot(
+    aes(x = res_12.1_1)) + 
+  geom_bar(
+    width = 0.25, 
+    fill = "#C1440E") +  
+  scale_y_continuous(
+    breaks=seq(0,600,100)) + 
+  labs(
+    title = "Distribución de las viviendas según la cantidad de servicios básicos formales.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    y = "Cantidad de viviendas", 
+    x = "Cantidad de servicios formales",
+    caption = "\n“Servicios formales” refiere al acceso de la vivienda a agua, electricidad y gas natural provistos por red pública, donde las\nconexiones de agua y electricidad cuentan con medidor propio.") +
+  theme(plot.caption = element_text(hjust = 0))
+
+plt_servicios_formales
+## 750x800
+```
+
+## 1.2. Tipo de servicio de luz vs perdidas de electrodomesticos
+```{r}
+## Preparación de los datos
+tbl_medidor_electrodomesticos <- df %>%
+  mutate(
+    tipoServicio = case_when(
+      id_7.1_1 == "Conexión a través de un medidor a la red eléctrica" ~ "Medidor propio",
+      id_7.1_1 == "Conexión a través de un medidor comunitario a la red eléctrica" ~ "Medidor comunitario",
+      grepl("informal", id_7.1_1) ~ "Informal",
+      TRUE ~ NA_character_)) %>%
+  filter(!is.na(tipoServicio)) %>%
+  count(tipoServicio, numElectrodomesticos = id_7.3_1) %>%
+  group_by(tipoServicio) %>%
+  mutate(value = n / sum(n)) %>%
+  ungroup() %>%
+  mutate(
+    numElectrodomesticos = recode(numElectrodomesticos,
+      "No" = "0",
+      "Si, al menos un electrodoméstico o herramientas de trabajo" = "Más de 1",
+      "Si, al menos dos electrodomésticos" = "Más de 2",
+      "Si, tres o más" = "3 o más"),
+    numElectrodomesticos = factor(numElectrodomesticos, levels = c("0", "Más de 1", "Más de 2", "3 o más")),
+    tipoServicio = factor(tipoServicio, levels = c("Medidor propio", "Medidor comunitario", "Informal"))) %>%
+  select(tipoServicio, numElectrodomesticos, value)
+
+## Gráfico de barras apiladas
+plt_medidor_electrodomesticos <- tbl_medidor_electrodomesticos %>%
+  ggplot(
+    aes(x = tipoServicio,
+        y = value,
+        fill = numElectrodomesticos)) +
+  geom_bar(
+    position = "stack", 
+    stat = "identity") +
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_manual(
+    values = c(
+      "0" = "#D7B49E",
+      "Más de 1" = "#D1884F",
+      "Más de 2" = "#C1440E",
+      "3 o más" = "#872E2E")) +
+  labs(
+    title = "Relación entre el tipo de conexión eléctrica en la vivienda y las pérdidas materiales.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    x = "Tipo de conexión a la red eléctrica",
+    y = "Porcentaje de viviendas",
+    fill = "Electrodomésticos y/o\nherramientas de trabajo\nperdidos en el último año")
+
+
+plt_medidor_electrodomesticos
+#850x800
+```
+
+## 2.1. Tipo de tenencia
+```{r}
+## Preparación de los datos
+tbl_tenencia <- df %>%
+  select(
+    tenencia = id_4.3_1) %>%
+  mutate(
+    tenencia = recode(
+      id_4.3_1,
+      "Propio con algún comprobante de tenencia" = "Propio con comprobante")) %>%
+  count(
+    tenencia) %>%
+  mutate(
+    porcentaje = n / sum(n))
+
+## Gráfico de barras horizontales ordenado por frecuencia
+plt_tenencia <- tbl_tenencia %>%
+  ggplot(
+    aes(x = reorder(tenencia, -porcentaje), y = porcentaje)) +
+  geom_bar(
+    stat = "identity", 
+    width = 0.75, 
+    fill = "#EFC483") + 
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1), 
+    limits = c(0, 1)) +
+  labs(
+    title = "Distribución de las viviendas según el régimen de tenencia.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    y = "Porcentaje de viviendas", 
+    x = "Régimen de tenencia"
+  ) +
+  coord_flip() +
+  theme(
+    plot.margin = unit(c(8,16,8,8), "pt"))
+
+plt_tenencia
+#850x700
+```
+
+## 2.2. Costo de alquiler
+```{r}
+## Preparación de los datos
+df_alquiler <- df %>%
+  select(
+    costo_alquiler = id_4.4.2_1) %>%
+  filter(
+    !is.na(id_4.4.2_1))
+
+cuantiles <- quantile(df_alquiler$costo_alquiler)
+segmentos <- data.frame(
+  x = cuantiles[2:4],
+  y = c(24, 21, 11),
+  etiqueta = c("Q1\n", "Q2\n", "Q3\n")
+)
+
+## Histograma
+plt_alquiler <- df_alquiler %>%
+  ggplot(
+    aes(x = costo_alquiler)) +
+  geom_histogram(
+    breaks = seq(0, 30000, 2000), 
+    color = "#FCF7F6",  
+    fill = "#EFC483") +
+  
+  geom_segment(
+    data = segmentos,
+    aes(x = x, xend = x, y = 0, yend = y),
+    linetype = "dashed",
+    color = "#D86F45",
+    linewidth = 1,
+    alpha = 0.8
+  ) +
+  geom_text(
+    data = segmentos,
+    aes(x = x, y = y, label = etiqueta),
+    colour = "#D86F45",
+    fontface = "bold"
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, 30000, 5000)) +
+  scale_y_continuous(
+    breaks = seq(0, 25, 5)) +
+  labs(
+    title = "Distribución de las viviendas según el valor del alquiler mensual.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    y = "Cantidad de viviendas", 
+    x = "Valor del alquiler (ARS)")
+
+plt_alquiler
+#850x650
+```
+
+## 3.1. Plagas
+```{r}
+## Preparación de los datos
+tbl_plagas <- df %>%
+  select(
+    presencia_plagas = id_10.6.1_1,
+    Cucarachas = id_10.6.2_1,
+    Mosquitos = id_10.6.2_2,
+    Ratas = id_10.6.2_3) %>%
+  mutate(
+    Ninguna    = ifelse(presencia_plagas == "No", 1, 0),
+    Cucarachas = ifelse(Cucarachas == "Cucarachas", 1, 0),
+    Mosquitos  = ifelse(Mosquitos == "Mosquitos", 1, 0),
+    Ratas      = ifelse(Ratas == "Ratas", 1, 0),) %>%
+  summarise(
+    Cucarachas = sum(Cucarachas, na.rm = TRUE),
+    Mosquitos  = sum(Mosquitos, na.rm = TRUE),
+    Ratas      = sum(Ratas, na.rm = TRUE),
+    Ninguna    = sum(Ninguna, na.rm = TRUE)) %>%
+  pivot_longer(cols = everything(), 
+               names_to = "plaga", 
+               values_to = "frecAbs") %>%
+  mutate(
+    frecRel = round(frecAbs / nrow(df), 2))
+
+## Gráfico de barras horizontales
+plt_plagas <- tbl_plagas %>%
+  ggplot(aes(x = reorder(plaga, -frecRel),
+             y = frecRel,
+             fill = plaga == "Ninguna")) +
+  geom_bar(
+    stat = "identity", 
+    width = 0.75) +
+  scale_fill_manual(
+    values = c("TRUE" = "#97C082", "FALSE" = "#6A866A"), 
+    guide = "none") +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 0.5)) +
+  labs(title = "Distribución de las viviendas según la presencia de plagas.",
+       subtitle = "Barrios populares de Argentina, año 2022.",
+       y = "Porcentaje de viviendas", 
+       x = "Tipo de plaga") +
+  coord_flip()
+
+plt_plagas
+#850x600
+```
+
+## 3.2. Recoleccion de residuos
+```{r}
+## Preparación de los datos
+tbl_basura <- df %>%
+  count(id_11.9.2_1) %>%
+  rename(frecuencia_recoleccion = id_11.9.2_1) %>%
+  mutate(
+    frecuencia_recoleccion = recode(
+      frecuencia_recoleccion,
+      "Al menos 5 veces a la semana" = "5 o más",
+      "Entre 2 y 4 veces a la semana" = "Entre 2 y 4",
+      "Una vez a la semana" = "1",
+      "No hay servicio de recolección municipal" = "0"),
+    frecuencia_recoleccion = factor(frecuencia_recoleccion, 
+                                    levels = c("0", "1", "Entre 2 y 4", "5 o más")),
+    frecRel = n / sum(n)
+  )
+
+## Gráfico de barras horizontales ordenado por orden natural
+plt_basura <- tbl_basura %>%
+  ggplot(
+    aes(x = frecuencia_recoleccion, 
+        y = frecRel,
+        fill = frecuencia_recoleccion == "5 o más")) + 
+  geom_col(
+    width = 0.8) +
+  scale_fill_manual(
+    values = c("TRUE" = "#97C082", "FALSE" = "#6A866A"), 
+    guide = "none") +
+  scale_y_continuous(
+    labels = scales::percent_format(accuracy = 1), 
+    limits = c(0, 1)) +
+  labs(
+    title = "Distribución de las viviendas según la frecuencia de recolección de residuos.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    x = "Frecuencia de recolección (veces/semana)", 
+    y = "Porcentaje de viviendas"
+  ) +
+  coord_flip()
+
+plt_basura
+#850x600
+```
+
+## 3.3. Plagas vs basurales
+```{r}
+## Preparación de los datos
+df_plagas_basurales <- df %>%
+  select(
+    cucarachas = id_10.6.2_1, 
+    ratas = id_10.6.2_3, 
+    cercania_basurales = id_11.7_1) %>%
+  mutate(
+    cucarachas = ifelse(!is.na(cucarachas), 1, 0),
+    ratas = ifelse(!is.na(ratas), 1, 0), 
+    cercania_basurales = recode(cercania_basurales,
+      "Sí, a menos de 500 metros" = "Menos de 500m",
+      "Sí, a más de 500 metros y menos de 2 kilómetros" = "Entre 500m y 2km",
+      "No" = "Más de 2km"),
+    cercania_basurales = factor(cercania_basurales, 
+                                levels = c("Menos de 500m", "Entre 500m y 2km", "Más de 2km")),
+    combinacion_plagas = case_when(
+      cucarachas + ratas == 0 ~ "Ninguna",
+      cucarachas == 1 & ratas == 0 ~ "Solo cucarachas",
+      cucarachas == 0 & ratas == 1 ~ "Solo ratas",
+      cucarachas == 1 & ratas == 1 ~ "Ratas y cucarachas"),
+    combinacion_plagas = factor(combinacion_plagas,
+                                levels = c("Ninguna",
+                                           "Solo cucarachas",
+                                           "Solo ratas",
+                                           "Ratas y cucarachas"))) %>%
+  group_by(cercania_basurales, combinacion_plagas) %>%
+  summarise(
+    frecAbs = n(), 
+    .groups = "drop") %>%
+  group_by(cercania_basurales) %>%
+  mutate(frecRel = frecAbs / sum(frecAbs)) %>%
+  ungroup()
+
+## Gráfico de barras apiladas
+plt_plagas_basurales <- df_plagas_basurales %>%
+  ggplot(aes(x = frecRel, 
+             y = cercania_basurales, 
+             fill = combinacion_plagas)) +
+  geom_bar(stat = "identity", 
+           position = "stack",
+           width = 0.8) +
+  scale_fill_manual(values = c(
+    "Solo cucarachas" = "#EFC483",
+    "Solo ratas" = "#e87c51",
+    "Ratas y cucarachas" = "#C1440E",
+    "Ninguna" = "#A1B4A2")) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(title = "Relación entre la presencia de plagas en la vivienda y la cercanía a basurales.",
+       subtitle = "Barrios populares de Argentina, 2022.",
+       x = "Porcentaje de viviendas",
+       y = "Cercanía a basurales",
+       fill = "Plagas presentes",
+       caption = "\nEste gráfico incluye únicamente la presencia de ratas y cucarachas.\nLa presencia de mosquitos no fue considerada.") +
+  theme(plot.caption = element_text(hjust = 0))
+
+plt_plagas_basurales
+#850x650
+```
+
+## 4.1. Capacidad de almacenamiento de agua
+```{r}
+## Preparación de los gráficos
+df_menores_agua <- df %>%
+  select(
+    menores = id_1.9_1,
+    almacenamiento_agua = id_5.4.2_1) %>%
+  mutate(
+    menores = as.numeric(menores),
+    almacenamiento_agua = ifelse(
+      is.na(almacenamiento_agua),
+      "No tiene",
+      almacenamiento_agua),
+    almacenamiento_agua = factor(
+      almacenamiento_agua,
+      levels = c("No tiene",
+                 "Menos de 200 lts",
+                 "200 a 500 lts",
+                 "Más de 500 lts"),
+      ordered = TRUE)) %>%
+  filter(
+    menores %in% 0:7)
+
+## Boxplot
+plt_menores_agua <- 
+  ggplot(
+    df_menores_agua, 
+    aes(x = menores, 
+        y = almacenamiento_agua)) +
+  scale_x_continuous(breaks = seq(0,10,1)) +
+  geom_jitter(
+    color = "#94C6D4",
+    width = 0.2,
+    alpha = 0.3) +
+  geom_boxplot(
+    outlier.shape = NA,
+    fill = "#94C6D4",
+    color = "#004C6D",
+    alpha = 0.8) +
+  labs(
+    title = "Relación entre la cantidad de menores en la vivienda y la capacidad de almacenamiento\nde agua.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    x = "Cantidad de menores de edad",
+    y = "Capacidad de almacenamiento de agua") +
+  coord_flip()
+
+plt_menores_agua
+#850x600
+```
+
+## 4.2. Menores vs celulares
+```{r}
+## Preparación de los datos
+df_menores_tecnologia <- df %>%
+  select(
+    menores = id_1.9_1,
+    dispositivos = id_8.4_1
+  ) %>%
+  mutate(
+    menores = as.numeric(menores),
+    dispositivos = as.numeric(dispositivos)
+  ) %>%
+  filter(menores %in% 0:7) %>%
+  mutate(
+    desajuste_num = dispositivos - menores,
+    desajuste = cut(
+      desajuste_num,
+      breaks = c(-Inf, 0, 1, Inf),
+      labels = c("Déficit (< 1)", "Justo (= 1)", "Superávit (≥ 2)"),
+      right = TRUE)
+  ) %>%
+  group_by(menores, dispositivos, desajuste) %>%
+  summarise(total_seccion = n(), .groups = "drop")
+
+## Tabla
+tbl_menores_tecnologia <- df_menores_tecnologia %>%
+  select(
+    menores, 
+    dispositivos, 
+    total_seccion) %>%
+  pivot_wider(
+    names_from = dispositivos,
+    values_from = total_seccion,
+    values_fill = 0
+  )
+
+tbl_menores_tecnologia
+
+## Coeficiente de Pearson
+pearson = cor(df_menores_tecnologia$menores, 
+              df_menores_tecnologia$dispositivos, 
+              method = "pearson")
+pearson
+
+## Diagrama de dispersión
+plt_menores_tecnologia <- 
+  ggplot(df_menores_tecnologia, 
+         aes(x = menores, 
+             y = dispositivos)) +
+  scale_x_continuous(breaks = seq(0, 7)) +
+  scale_y_continuous(breaks = seq(0, 5)) +
+  geom_point(aes(size = total_seccion, 
+                 color = desajuste)) +
+  scale_size_area(max_size = 15) +
+  scale_color_manual(
+    values = c(
+      "Déficit (< 1)" = "#C1440E",
+      "Justo (= 1)" = "#EFC483",
+      "Superávit (≥ 2)" = "#97C082")) +
+  labs(
+    title = "Relación entre la cantidad de menores en la vivienda y la cantidad de dispositivos\ntecnológicos.",
+    subtitle = "Barrios populares de Argentina, año 2022.",
+    x = "Cantidad de menores de edad",
+    y = "Cantidad de celulares y tablets",
+    size = "Cantidad de viviendas",
+    color = "Desajuste tecnológico\n(dispositivos - personas)") +
+  guides(
+    size = guide_legend(override.aes = list(color = "#96C6D4")),
+    color = guide_legend(override.aes = list(size = 6)))
+
+plt_menores_tecnologia
+#850x600
+
+```
